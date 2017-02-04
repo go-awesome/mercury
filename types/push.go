@@ -8,7 +8,7 @@
 package types
 
 type Push struct {
-	SenderID 	 string         		`json:"device_type"`
+	SenderID 	 string         		`json:"sender_id"`
 	UserID 		 int					`json:"user_id"`
 	Auth 		 map[string]interface{} `json:"auth"`
 	Notification map[string]interface{}	`json:"notification"`
