@@ -2,7 +2,7 @@
 //  config.go
 //  mercury
 //
-//  Copyright (c) 2016 Miguel Ángel Ortuño. All rights reserved.
+//  Copyright (c) 2017 Miguel Ángel Ortuño. All rights reserved.
 //
 
 package config
@@ -21,7 +21,6 @@ type globalConfig struct {
     MySql   MySqlConfig     `toml:"my_sql"`
     Apns    ApnsConfig      `toml:"apns"`
     Gcm     GcmConfig       `toml:"gcm"`
-    Chrome  GcmConfig       `toml:"chrome"`
 }
 
 type LoggerConfig struct {
@@ -55,7 +54,6 @@ var Server  ServerConfig
 var MySql   MySqlConfig
 var Apns    ApnsConfig
 var Gcm     GcmConfig
-var Chrome  GcmConfig
 
 func init() {
     initDefaultSettings()
@@ -71,7 +69,6 @@ func Load(cfgFile string) {
         MySql  = conf.MySql
         Apns   = conf.Apns
         Gcm    = conf.Gcm
-        Chrome = conf.Chrome
     }
 }
 
@@ -91,11 +88,10 @@ func initDefaultSettings() {
     MySql.Password = "1234"
 
     // apns
-    Apns.PoolSize = 8
+    Apns.PoolSize = 16
     Apns.CertFile = "cert.p12"
     Apns.SandboxCertFile = "cert.p12"
 
     // gcm
-    Gcm.PoolSize = 8
-    Chrome.PoolSize = 8
+    Gcm.PoolSize = 16
 }

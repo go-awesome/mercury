@@ -13,8 +13,8 @@ import (
 	"time"
 	"database/sql"
 	_ "github.com/go-sql-driver/mysql"
-	"github.com/Hooks-Alerts/mercuryx/config"
-	"github.com/Hooks-Alerts/mercuryx/logger"
+	"github.com/ortuman/mercury/config"
+	"github.com/ortuman/mercury/logger"
 )
 
 const maxMySqlTransactionRetries = 10
