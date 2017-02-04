@@ -1,6 +1,6 @@
 //
 //  logger.go
-//  mercuryx
+//  mercury
 //
 //  Copyright (c) 2016 Miguel Ángel Ortuño. All rights reserved.
 //
@@ -15,7 +15,7 @@ import (
     "sync/atomic"
 )
 
-const loggerName = "github.com/Hooks-Alerts/mercuryx"
+const loggerName = "github.com/ortuman/mercury"
 
 const debugLevel = 0
 const infoLevel  = 1
@@ -134,7 +134,7 @@ func newMercuryLogger(cnf golog.Conf) *logAppender {
 }
 
 func (l *logAppender) Id() string {
-	return "github.com/Hooks-Alerts/mercuryx/logger"
+	return "github.com/ortuman/mercury/logger"
 }
 
 func (l *logAppender) Append(log golog.Log) {

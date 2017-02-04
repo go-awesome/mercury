@@ -1,8 +1,8 @@
 //
 //  server.go
-//  mercuryx
+//  mercury
 //
-//  Copyright (c) 2016 Miguel Ángel Ortuño. All rights reserved.
+//  Copyright (c) 2017 Miguel Ángel Ortuño. All rights reserved.
 //
 
 package server
@@ -12,9 +12,9 @@ import (
 	"runtime"
 	"net/http"
 	"github.com/emicklei/go-restful"
-	"github.com/Hooks-Alerts/mercuryx/logger"
-	"github.com/Hooks-Alerts/mercuryx/config"
-	"github.com/Hooks-Alerts/mercuryx/storage"
+	"github.com/ortuman/mercury/logger"
+	"github.com/ortuman/mercury/config"
+	"github.com/ortuman/mercury/storage"
 )
 
 type Server struct {

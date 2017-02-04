@@ -1,8 +1,8 @@
 //
 //  sender.go
-//  mercuryx
+//  mercury
 //
-//  Copyright (c) 2016 Miguel Ángel Ortuño. All rights reserved.
+//  Copyright (c) 2017 Miguel Ángel Ortuño. All rights reserved.
 //
 
 package push
@@ -13,14 +13,14 @@ import (
 	"strconv"
 	"net/http"
 	"crypto/tls"
-	"github.com/Hooks-Alerts/mercuryx/logger"
-	"github.com/Hooks-Alerts/mercuryx/config"
-	"github.com/Hooks-Alerts/mercuryx/request"
-	"github.com/Hooks-Alerts/mercuryx/cert"
+	"github.com/ortuman/mercury/logger"
+	"github.com/ortuman/mercury/config"
+	"github.com/ortuman/mercury/request"
+	"github.com/ortuman/mercury/cert"
 	"github.com/mitchellh/mapstructure"
 )
 
-const ApnsSenderID = "_ios"
+const ApnsSenderID = "apns"
 
 const apnsSendEndpoint = "https://api.push.apple.com"
 const apnsSandboxSendEndpoint = "https://api.development.push.apple.com"

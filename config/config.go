@@ -1,6 +1,6 @@
 //
 //  config.go
-//  mercuryx
+//  mercury
 //
 //  Copyright (c) 2016 Miguel Ángel Ortuño. All rights reserved.
 //
@@ -9,10 +9,10 @@ package config
 
 import (
     "github.com/BurntSushi/toml"
-    "github.com/Hooks-Alerts/mercuryx/logger"
+    "github.com/ortuman/mercury/logger"
 )
 
-const ServiceName    = "mercuryx"
+const ServiceName    = "mercury"
 const ServiceVersion = "1.0"
 
 type globalConfig struct {
@@ -38,7 +38,6 @@ type MySqlConfig struct {
     Host       string  `toml:"host"`
     User       string  `toml:"user"`
     Password   string  `toml:"pass"`
-    Database   string  `toml:""`
 }
 
 type ApnsConfig struct {
@@ -80,7 +79,7 @@ func initDefaultSettings() {
 
     // logger
     Logger.Level   = "DEBUG"
-    Logger.Logfile = "mercuryx.log"
+    Logger.Logfile = "mercury.log"
 
     // server
     Server.ListAddr = ""
@@ -90,7 +89,6 @@ func initDefaultSettings() {
     MySql.Host     = "localhost:3306"
     MySql.User     = "root"
     MySql.Password = "1234"
-    MySql.Database = ""
 
     // apns
     Apns.PoolSize = 8

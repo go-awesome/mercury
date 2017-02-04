@@ -1,6 +1,6 @@
 //
 //  push.go
-//  mercuryx
+//  mercury
 //
 //  Copyright (c) 2017 Miguel Ángel Ortuño. All rights reserved.
 //

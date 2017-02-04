@@ -70,9 +70,8 @@ func verify(cert *x509.Certificate) error {
 			return err
 		}
 	case x509.UnknownAuthorityError:
-		// Apple cert isn't in the cert pool
-		// ignoring this error
 		return nil
+
 	default:
 		return err
 	}

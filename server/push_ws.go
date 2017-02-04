@@ -1,6 +1,6 @@
 //
 //  push_ws.go
-//  mercuryx
+//  mercury
 //
 //  Copyright (c) 2017 Miguel Ángel Ortuño. All rights reserved.
 //
@@ -10,9 +10,9 @@ package server
 import (
 	"net/http"
 	"github.com/emicklei/go-restful"
-	"github.com/Hooks-Alerts/mercuryx/push"
-	"github.com/Hooks-Alerts/mercuryx/types"
-	"github.com/Hooks-Alerts/mercuryx/logger"
+	"github.com/ortuman/mercury/push"
+	"github.com/ortuman/mercury/types"
+	"github.com/ortuman/mercury/logger"
 )
 
 type PushSender struct {
@@ -61,5 +61,4 @@ func (ps *PushSender) registerSenders() {
 
 	ps.senders[push.ApnsSenderID] = push.NewApnsSenderPool()
 	ps.senders[push.GcmSenderID] = push.NewGcmSenderPool()
-	ps.senders[push.ChromeSenderID] = push.NewChromeSenderPool()
 }

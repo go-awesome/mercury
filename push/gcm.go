@@ -1,8 +1,8 @@
 //
 //  gcm.go
-//  mercuryx
+//  mercury
 //
-//  Copyright (c) 2016 Miguel Ángel Ortuño. All rights reserved.
+//  Copyright (c) 2017 Miguel Ángel Ortuño. All rights reserved.
 //
 
 package push
@@ -11,13 +11,12 @@ import (
 	"fmt"
 	"net/http"
 	"github.com/mitchellh/mapstructure"
-	"github.com/Hooks-Alerts/mercuryx/request"
-	"github.com/Hooks-Alerts/mercuryx/config"
-	"github.com/Hooks-Alerts/sirius/logger"
+	"github.com/ortuman/mercury/request"
+	"github.com/ortuman/mercury/config"
+	"github.com/ortuman/mercury/logger"
 )
 
-const GcmSenderID = "_android"
-const ChromeSenderID = "chrome"
+const GcmSenderID = "gcm"
 
 const gcmSendEndpoint = "https://android.googleapis.com/gcm/send"
 
@@ -32,18 +31,6 @@ func NewGcmSenderPool() *SenderPool {
 	s.initPool(config.Gcm.PoolSize)
 
 	logger.Infof("gcm: initalized gcm sender (pool size: %d)", s.senderCount)
-	return s
-}
-
-func NewChromeSenderPool() *SenderPool {
-	s := &SenderPool{ID: "chrome"}
-
-	s.senderFactory = func() PushSender{
-		return NewGcmPushSender()
-	}
-	s.initPool(config.Chrome.PoolSize)
-
-	logger.Infof("gcm: initalized chrome sender (pool size: %d)", s.senderCount)
 	return s
 }
 

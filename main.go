@@ -9,12 +9,12 @@ package main
 
 import (
 	"os"
-	"github.com/Hooks-Alerts/mercuryx/server"
-	"github.com/Hooks-Alerts/mercuryx/config"
-	"github.com/Hooks-Alerts/mercuryx/logger"
+	"github.com/ortuman/mercury/server"
+	"github.com/ortuman/mercury/config"
+	"github.com/ortuman/mercury/logger"
 )
 
-const configFile = "/etc/mercuryx/mercuryx.conf"
+const configFile = "/etc/mercury/mercury.conf"
 
 func main() {
 	// load configuration
