@@ -1,2 +1,1 @@
-# mercuryx
 # mercury
