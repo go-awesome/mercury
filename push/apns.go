@@ -13,12 +13,12 @@ import (
 	"strconv"
 	"net/http"
 	"crypto/tls"
+	"golang.org/x/net/http2"
 	"github.com/ortuman/mercury/logger"
 	"github.com/ortuman/mercury/config"
 	"github.com/ortuman/mercury/request"
 	"github.com/ortuman/mercury/cert"
 	"github.com/mitchellh/mapstructure"
-	"golang.org/x/net/http2"
 )
 
 const ApnsSenderID = "apns"
