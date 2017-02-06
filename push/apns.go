@@ -18,6 +18,7 @@ import (
 	"github.com/ortuman/mercury/request"
 	"github.com/ortuman/mercury/cert"
 	"github.com/mitchellh/mapstructure"
+	"golang.org/x/net/http2"
 )
 
 const ApnsSenderID = "apns"
@@ -73,6 +74,14 @@ func NewApnsPushSender() (*ApnsPushSender, error) {
 		TLSClientConfig: &tls.Config{Certificates: []tls.Certificate{tlsSandboxCert}},
 	}
 
+	// Upgrade transports to HTTP2
+	if err := http2.ConfigureTransport(transport); err != nil {
+		return nil, err
+	}
+	if err := http2.ConfigureTransport(sandboxTransport); err != nil {
+		return nil, err
+	}
+
 	s.client = &http.Client{Transport: transport}
 	s.sandboxClient = &http.Client{Transport: sandboxTransport}
 
@@ -108,15 +117,6 @@ func (s *ApnsPushSender) SendNotification(userID int, notification map[string]in
 	apnsReq.Notification = notification
 	apnsReq.NotificationID = apnsNotification.Identifier
 
-	// compose headers
-	headers := make(map[string]string)
-	headers["Content-Type"] = "application/json"
-
-	expiration := time.Now().Add(86400 * time.Second)
-	headers["apns-expiration"] = strconv.FormatInt(expiration.Unix(), 10)
-	headers["apns-priority"] = "10"
-	headers["apns-topic"] = "com.hooks.hooks"
-
 	var req *request.Request
 	if !apnsAuth.Sandbox {
 		req = request.NewRequest(s.client)
@@ -127,7 +127,16 @@ func (s *ApnsPushSender) SendNotification(userID int, notification map[string]in
 	}
 	defer req.Close()
 
-	statusCode, err := req.POST(&apnsReq).Do()
+	// compose headers
+	headers := make(map[string]string)
+	headers["Content-Type"] = "application/json"
+
+	expiration := time.Now().Add(86400 * time.Second)
+	headers["apns-expiration"] = strconv.FormatInt(expiration.Unix(), 10)
+	headers["apns-priority"] = "10"
+	headers["apns-topic"] = "github.com/ortuman"
+
+	statusCode, err := req.Headers(headers).POST(&apnsReq).Do()
 	if err != nil {
 		logger.Errorf("apns: %v", err)
 		return

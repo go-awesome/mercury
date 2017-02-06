@@ -1,5 +1,5 @@
 //
-//  push_ws.go
+//  users_ws.go
 //  mercury
 //
 //  Copyright (c) 2017 Miguel Ángel Ortuño. All rights reserved.
@@ -21,21 +21,31 @@ type PushSender struct {
 
 var pushSender *PushSender
 
-func NewPushWS() *restful.WebService {
+func NewUsersWS() *restful.WebService {
 	pushSender = NewPushSender()
 
-	s := new(restful.WebService)
-	s.Path("/push")
-	s.Consumes(restful.MIME_JSON)
-	s.Route(s.POST("").To(pushSender.push))
+	ws := new(restful.WebService)
+	ws.Path("/users")
 
-	return s
+	ws.Route(ws.PUT("{user_id}/{sender_id}/{token}").To(pushSender.registerToken))
+	ws.Route(ws.DELETE("{user_id}/{sender_id}").To(pushSender.unregisterToken))
+	ws.Route(ws.POST("{user_id}/{sender_id}").To(pushSender.push))
+
+	return ws
 }
 
 func NewPushSender() *PushSender {
 	ps := &PushSender{}
 	ps.registerSenders()
 	return ps
+}
+
+func (ps *PushSender) registerToken(request *restful.Request, response *restful.Response) {
+	response.WriteHeader(http.StatusOK)
+}
+
+func (ps *PushSender) unregisterToken(request *restful.Request, response *restful.Response) {
+	response.WriteHeader(http.StatusOK)
 }
 
 func (ps *PushSender) push(request *restful.Request, response *restful.Response) {

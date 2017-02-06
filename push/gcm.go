@@ -14,6 +14,7 @@ import (
 	"github.com/ortuman/mercury/request"
 	"github.com/ortuman/mercury/config"
 	"github.com/ortuman/mercury/logger"
+	"golang.org/x/net/http2"
 )
 
 const GcmSenderID = "gcm"
@@ -26,7 +27,12 @@ func NewGcmSenderPool() *SenderPool {
 	s := &SenderPool{ID: "gcm"}
 
 	s.senderFactory = func() PushSender{
-		return NewGcmPushSender()
+		s, err := NewGcmPushSender()
+		if err != nil {
+			logger.Errorf("gcm: %v", err)
+			return nil
+		}
+		return s
 	}
 	s.initPool(config.Gcm.PoolSize)
 
@@ -40,10 +46,14 @@ type GcmPushSender struct {
 	client *http.Client
 }
 
-func NewGcmPushSender() *GcmPushSender {
+func NewGcmPushSender() (*GcmPushSender, error) {
 	s := &GcmPushSender{}
-	s.client = &http.Client{}
-	return s
+	transport := &http.Transport{}
+	if err := http2.ConfigureTransport(transport); err != nil {
+		return nil, err
+	}
+	s.client = &http.Client{Transport: transport}
+	return s, nil
 }
 
 func (s *GcmPushSender) SendNotification(userID int, notification map[string]interface{}, auth map[string]interface{}) {

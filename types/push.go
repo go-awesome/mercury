@@ -13,3 +13,4 @@ type Push struct {
 	Auth 		 map[string]interface{} `json:"auth"`
 	Notification map[string]interface{}	`json:"notification"`
 }
+
