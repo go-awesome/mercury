@@ -9,10 +9,11 @@ package types
 
 type Push struct {
 	SenderID 	 string         `json:"sender_id,omitempty"`
-	UserID 		 string			`json:"user_id"`
-	Notification *Notification	`json:"notification"`
+	UserIDs 	 []string		`json:"user_ids"`
+	Notification Notification	`json:"notification"`
 }
 
 type Notification struct {
 	ID	string	`json:"id"`
 }
+

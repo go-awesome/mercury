@@ -8,11 +8,10 @@
 package types
 
 const (
-	ApnsSenderID = 1
-	GcmSenderID  = 2
+	ApnsSenderID = "apns"
+	GcmSenderID = "gcm"
 )
 
-const (
-	ApnsSenderName = "apns"
-	GcmSenderName = "gcm"
-)
+func IsValidSenderID(senderID string) bool {
+	return (senderID == ApnsSenderID || senderID == GcmSenderID)
+}

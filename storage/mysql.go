@@ -15,30 +15,25 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/ortuman/mercury/config"
 	"github.com/ortuman/mercury/logger"
-	"github.com/ortuman/mercury/types"
 )
 
 const maxMySqlTransactionRetries = 10
 
 // create table statements
-const mySqlCreateSendersStatement = "" +
-	"CREATE TABLE IF NOT EXISTS senders (" +
-	"  id INT NOT NULL," +
-	"  name VARCHAR(32) NOT NULL," +
-	"  created_at DATETIME NOT NULL," +
-	" PRIMARY KEY (id)) DEFAULT CHARSET = utf8mb4"
 
 const mySqlCreateUsersStatement = "" +
 	"CREATE TABLE IF NOT EXISTS users (" +
-	"  user_id INT NOT NULL," +
-	"  sender_id INT NOT NULL," +
+	"  user_id VARCHAR(128) NOT NULL," +
+	"  sender_id VARCHAR(16) CHARSET ascii NOT NULL," +
 	"  token TEXT NOT NULL," +
 	"  badge INT DEFAULT 0," +
 	"  status VARCHAR(32) NOT NULL," +
 	"  created_at DATETIME NOT NULL," +
 	"  updated_at DATETIME NOT NULL," +
-	" PRIMARY KEY (user_id, sender_id)) DEFAULT CHARSET = utf8mb4" +
-	" PARTITION BY HASH(user_id + sender_id) PARTITIONS 128"
+	" PRIMARY KEY (user_id, sender_id)) DEFAULT CHARSET = utf8mb4"
+
+// create index statements
+const createUsersIdIndexStatement = "CREATE INDEX users_id_idx ON users (user_id)"
 
 type MySql struct {
 	db *sql.DB
@@ -70,10 +65,24 @@ func NewMySql() *MySql {
 		log.Fatalf("mysql: %v", err)
 	}
 
-	s.insertSenders()
-
 	go s.performAdditionalTasks()
 	return s
+}
+
+func (s *MySql) InsertSenderInfo(senderInfo *SenderInfo) error {
+	return nil
+}
+
+func (s *MySql) FetchSenderInfo(userID string, senderID string) (*SenderInfo, error) {
+	return nil, nil
+}
+
+func (s *MySql) FetchSenderInfoArray(userID string) ([]*SenderInfo, error) {
+	return []*SenderInfo{}, nil
+}
+
+func (s *MySql) DeleteSenderInfo(userID string, senderID string) error {
+	return nil
 }
 
 func (s *MySql) createDatabase() error {
@@ -126,7 +135,6 @@ func (s *MySql) performAdditionalTasks() {
 func (s *MySql) optimizeTables() error {
 
 	// analyze tables
-	s.db.Exec("ANALYZE TABLE senders")
 	s.db.Exec("ANALYZE TABLE users")
 
 	return nil
@@ -135,20 +143,10 @@ func (s *MySql) optimizeTables() error {
 func (s *MySql) createTables() error {
 
 	// create tables
-	if _, err := s.db.Exec(mySqlCreateSendersStatement); err != nil	{ return err }
 	if _, err := s.db.Exec(mySqlCreateUsersStatement); err != nil 	{ return err }
 
 	// create additional indexes
-
-	return nil
-}
-
-func (s *MySql) insertSenders() error {
-
-	stmt := "INSERT IGNORE INTO senders SET id = ?, name = ?, created_at = NOW()"
-
-	if _, err := s.db.Exec(stmt, types.ApnsSenderID, types.ApnsSenderName); err != nil	{ return err }
-	if _, err := s.db.Exec(stmt, types.GcmSenderID, types.GcmSenderName); err != nil	{ return err }
+	s.db.Exec(createUsersIdIndexStatement)
 
 	return nil
 }

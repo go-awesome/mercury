@@ -12,6 +12,13 @@ import (
 )
 
 type storage interface {
+
+	InsertSenderInfo(senderInfo *SenderInfo) error
+
+	FetchSenderInfo(userID string, senderID string) (*SenderInfo, error)
+	FetchSenderInfoArray(userID string) ([]*SenderInfo, error)
+
+	DeleteSenderInfo(userID string, senderID string) error
 }
 
 // singleton interface
