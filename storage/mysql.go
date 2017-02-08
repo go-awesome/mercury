@@ -26,7 +26,6 @@ const mySqlCreateSendersStatement = "" +
 	"  id INT NOT NULL," +
 	"  name VARCHAR(32) NOT NULL," +
 	"  created_at DATETIME NOT NULL," +
-	"  updated_at DATETIME NOT NULL," +
 	" PRIMARY KEY (id)) DEFAULT CHARSET = utf8mb4"
 
 const mySqlCreateUsersStatement = "" +
@@ -146,7 +145,7 @@ func (s *MySql) createTables() error {
 
 func (s *MySql) insertSenders() error {
 
-	stmt := "INSERT IGNORE INTO senders SET id = ?, name = ?, created_at = NOW(), updated_at = NOW()"
+	stmt := "INSERT IGNORE INTO senders SET id = ?, name = ?, created_at = NOW()"
 
 	if _, err := s.db.Exec(stmt, types.ApnsSenderID, types.ApnsSenderName); err != nil	{ return err }
 	if _, err := s.db.Exec(stmt, types.GcmSenderID, types.GcmSenderName); err != nil	{ return err }

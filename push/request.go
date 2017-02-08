@@ -5,7 +5,7 @@
 //  Copyright (c) 2017 Miguel Ángel Ortuño. All rights reserved.
 //
 
-package request
+package push
 
 import (
 	"bytes"
@@ -55,9 +55,18 @@ func (r *Request) GET() *Request {
 	return r
 }
 
-func (r *Request) POST(requestEntity interface{}) *Request {
+func (r *Request) POST() *Request {
 	r.method = "POST"
-	r.requestEntity = requestEntity
+	return r
+}
+
+func (r *Request) PUT() *Request {
+	r.method = "PUT"
+	return r
+}
+
+func (r *Request) DELETE() *Request {
+	r.method = "DELETE"
 	return r
 }
 
@@ -66,15 +75,12 @@ func (r *Request) Headers(headers map[string]string) *Request {
 	return r
 }
 
-func (r *Request) Do() (int, error) {
-	return r.doRequest(nil)
+func (r *Request) SendEntity(requestEntity interface{}) *Request {
+	r.requestEntity = requestEntity
+	return r
 }
 
-func (r *Request) DoWithResponseEntity(responseEntity interface{}) (int, error) {
-	return r.doRequest(responseEntity)
-}
-
-func (r *Request) doRequest(responseEntity interface{}) (int, error) {
+func (r *Request) Do(responseEntity interface{}) (int, error) {
 	var buf *bytes.Buffer = nil
 
 	// marshall request entity

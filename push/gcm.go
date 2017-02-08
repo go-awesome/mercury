@@ -10,11 +10,10 @@ package push
 import (
 	"fmt"
 	"net/http"
+	"golang.org/x/net/http2"
 	"github.com/mitchellh/mapstructure"
-	"github.com/ortuman/mercury/request"
 	"github.com/ortuman/mercury/config"
 	"github.com/ortuman/mercury/logger"
-	"golang.org/x/net/http2"
 )
 
 const GcmSenderID = "gcm"
@@ -24,19 +23,8 @@ const gcmSendEndpoint = "https://android.googleapis.com/gcm/send"
 const gcmNotRegisteredError = "NotRegistered"
 
 func NewGcmSenderPool() *SenderPool {
-	s := &SenderPool{ID: "gcm"}
-
-	s.senderFactory = func() PushSender{
-		s, err := NewGcmPushSender()
-		if err != nil {
-			logger.Errorf("gcm: %v", err)
-			return nil
-		}
-		return s
-	}
-	s.initPool(config.Gcm.PoolSize)
-
-	logger.Infof("gcm: initalized gcm sender (pool size: %d)", s.senderCount)
+	s := NewSenderPool("gcm", NewGcmPushSender, config.Gcm.PoolSize)
+	logger.Infof("gcm: initialized gcm sender (pool size: %d)", s.senderCount)
 	return s
 }
 
@@ -46,7 +34,7 @@ type GcmPushSender struct {
 	client *http.Client
 }
 
-func NewGcmPushSender() (*GcmPushSender, error) {
+func NewGcmPushSender() (PushSender, error) {
 	s := &GcmPushSender{}
 	transport := &http.Transport{}
 	if err := http2.ConfigureTransport(transport); err != nil {
@@ -92,14 +80,14 @@ func (s *GcmPushSender) SendNotification(userID int, notification map[string]int
 	gcmResp := &GcmResponse{}
 
 	// perform request
-	r := request.NewRequest(s.client)
+	r := NewRequest(s.client)
 	defer r.Close()
 
 	headers := map[string]string{}
 	headers["Content-Type"] = "application/json"
 	headers["Authorization"] = fmt.Sprintf("key=%s", gcmAuth.ApiKey)
 
-	statusCode, err := r.URL(gcmSendEndpoint).Headers(headers).POST(&gcmReq).DoWithResponseEntity(&gcmResp)
+	statusCode, err := r.URL(gcmSendEndpoint).Headers(headers).POST().Do(&gcmResp)
 	if err != nil {
 		logger.Errorf("gcm: %v", err)
 		return

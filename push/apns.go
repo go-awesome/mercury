@@ -14,11 +14,10 @@ import (
 	"net/http"
 	"crypto/tls"
 	"golang.org/x/net/http2"
+	"github.com/mitchellh/mapstructure"
 	"github.com/ortuman/mercury/logger"
 	"github.com/ortuman/mercury/config"
-	"github.com/ortuman/mercury/request"
 	"github.com/ortuman/mercury/cert"
-	"github.com/mitchellh/mapstructure"
 )
 
 const ApnsSenderID = "apns"
@@ -27,19 +26,8 @@ const apnsSendEndpoint = "https://api.push.apple.com"
 const apnsSandboxSendEndpoint = "https://api.development.push.apple.com"
 
 func NewApnsSenderPool() *SenderPool {
-	s := &SenderPool{ID: "apns"}
-
-	s.senderFactory = func() PushSender{
-		sender, err := NewApnsPushSender();
-		if err != nil {
-			logger.Errorf("apns: %v", err)
-			return nil
-		}
-		return sender
-	}
-	s.initPool(config.Apns.PoolSize)
-
-	logger.Infof("apns: initalized apns sender (pool size: %d)", s.senderCount)
+	s := NewSenderPool("apns", NewApnsPushSender, config.Apns.PoolSize)
+	logger.Infof("apns: initialized apns sender (pool size: %d)", s.senderCount)
 	return s
 }
 
@@ -50,7 +38,7 @@ type ApnsPushSender struct {
 	sandboxClient 	*http.Client
 }
 
-func NewApnsPushSender() (*ApnsPushSender, error) {
+func NewApnsPushSender() (PushSender, error) {
 	s := &ApnsPushSender{}
 
 	// Production certificate
@@ -117,12 +105,12 @@ func (s *ApnsPushSender) SendNotification(userID int, notification map[string]in
 	apnsReq.Notification = notification
 	apnsReq.NotificationID = apnsNotification.Identifier
 
-	var req *request.Request
+	var req *Request
 	if !apnsAuth.Sandbox {
-		req = request.NewRequest(s.client)
+		req = NewRequest(s.client)
 		req.URL(fmt.Sprintf("%v/3/device/%v", apnsSendEndpoint, apnsAuth.Token))
 	} else {
-		req = request.NewRequest(s.sandboxClient)
+		req = NewRequest(s.sandboxClient)
 		req.URL(fmt.Sprintf("%v/3/device/%v", apnsSandboxSendEndpoint, apnsAuth.Token))
 	}
 	defer req.Close()
@@ -136,7 +124,7 @@ func (s *ApnsPushSender) SendNotification(userID int, notification map[string]in
 	headers["apns-priority"] = "10"
 	headers["apns-topic"] = "github.com/ortuman"
 
-	statusCode, err := req.Headers(headers).POST(&apnsReq).Do()
+	statusCode, err := req.Headers(headers).POST().SendEntity(&apnsReq).Do(nil)
 	if err != nil {
 		logger.Errorf("apns: %v", err)
 		return
