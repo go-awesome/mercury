@@ -8,9 +8,11 @@
 package types
 
 type Push struct {
-	SenderID 	 string         		`json:"sender_id"`
-	UserID 		 int					`json:"user_id"`
-	Auth 		 map[string]interface{} `json:"auth"`
-	Notification map[string]interface{}	`json:"notification"`
+	SenderID 	 string         `json:"sender_id,omitempty"`
+	UserID 		 string			`json:"user_id"`
+	Notification *Notification	`json:"notification"`
 }
 
+type Notification struct {
+	ID	string	`json:"id"`
+}

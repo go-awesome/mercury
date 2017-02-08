@@ -8,19 +8,14 @@
 package push
 
 import (
-	"fmt"
-	"time"
-	"strconv"
 	"net/http"
 	"crypto/tls"
 	"golang.org/x/net/http2"
-	"github.com/mitchellh/mapstructure"
 	"github.com/ortuman/mercury/logger"
 	"github.com/ortuman/mercury/config"
 	"github.com/ortuman/mercury/cert"
+	"github.com/ortuman/mercury/types"
 )
-
-const ApnsSenderID = "apns"
 
 const apnsSendEndpoint = "https://api.push.apple.com"
 const apnsSandboxSendEndpoint = "https://api.development.push.apple.com"
@@ -76,20 +71,10 @@ func NewApnsPushSender() (PushSender, error) {
 	return s, nil
 }
 
-func (s *ApnsPushSender) SendNotification(userID int, notification map[string]interface{}, auth map[string]interface{}) {
-	apnsAuth := &ApnsAuth{}
-	if err := mapstructure.Decode(auth, apnsAuth); err != nil {
-		logger.Errorf("apns: invalid auth format: %v", err)
-		return
-	}
-
-	apnsNotification := &ApnsNotification{}
-	if err := mapstructure.Decode(notification, apnsNotification); err != nil {
-		logger.Errorf("apns: invalid notification format: %v", err)
-		return
-	}
+func (s *ApnsPushSender) SendNotification(userID string, notification *types.Notification) {
 
 	// compose request
+	/*
 	apnsReq := ApnsRequest{}
 	apnsReq.APS.Alert.Body = apnsNotification.Body
 	apnsReq.APS.Alert.Title = apnsNotification.Title
@@ -143,4 +128,5 @@ func (s *ApnsPushSender) SendNotification(userID int, notification map[string]in
 		log += " [sandbox]"
 	}
 	logger.Debugf(log)
+	*/
 }

@@ -8,15 +8,12 @@
 package push
 
 import (
-	"fmt"
 	"net/http"
 	"golang.org/x/net/http2"
-	"github.com/mitchellh/mapstructure"
 	"github.com/ortuman/mercury/config"
 	"github.com/ortuman/mercury/logger"
+	"github.com/ortuman/mercury/types"
 )
-
-const GcmSenderID = "gcm"
 
 const gcmSendEndpoint = "https://android.googleapis.com/gcm/send"
 
@@ -44,19 +41,9 @@ func NewGcmPushSender() (PushSender, error) {
 	return s, nil
 }
 
-func (s *GcmPushSender) SendNotification(userID int, notification map[string]interface{}, auth map[string]interface{}) {
-	gcmAuth := &GcmAuth{}
-	if err := mapstructure.Decode(auth, gcmAuth); err != nil {
-		logger.Errorf("gcm: invalid auth format: %v", err)
-		return
-	}
+func (s *GcmPushSender) SendNotification(userID string, notification *types.Notification) {
 
-	gcmNotification := &GcmNotification{}
-	if err := mapstructure.Decode(notification, gcmNotification); err != nil {
-		logger.Errorf("gcm: invalid notification format: %v", err)
-		return
-	}
-
+	/*
 	// prepare GCM request & response entities
 	alert := make(map[string]string)
 	alert["title"] = gcmNotification.Title
@@ -106,4 +93,5 @@ func (s *GcmPushSender) SendNotification(userID int, notification map[string]int
 	} else {
 		logger.Errorf("gcm: status code %d", statusCode)
 	}
+	*/
 }

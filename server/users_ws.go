@@ -58,7 +58,7 @@ func (ps *PushSender) push(request *restful.Request, response *restful.Response)
 
 	for _, payload := range pushPayloads {
 		if sender, ok := ps.senders[payload.SenderID]; ok {
-			sender.SendNotification(payload.UserID, payload.Notification, payload.Auth)
+			sender.SendNotification(payload.UserID, payload.Notification)
 		} else {
 			logger.Warnf("push_ws: unrecognized sender id: %s", payload.SenderID)
 		}
@@ -69,6 +69,6 @@ func (ps *PushSender) push(request *restful.Request, response *restful.Response)
 func (ps *PushSender) registerSenders() {
 	ps.senders = make(map[string]push.PushSender)
 
-	ps.senders[push.ApnsSenderID] = push.NewApnsSenderPool()
-	ps.senders[push.GcmSenderID] = push.NewGcmSenderPool()
+	ps.senders[types.ApnsSenderName] = push.NewApnsSenderPool()
+	ps.senders[types.GcmSenderName] = push.NewGcmSenderPool()
 }

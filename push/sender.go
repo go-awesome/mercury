@@ -7,33 +7,27 @@
 
 package push
 
-import "github.com/ortuman/mercury/logger"
+import (
+	"hash/fnv"
+	"github.com/ortuman/mercury/logger"
+	"github.com/ortuman/mercury/types"
+)
 
 // MARK: PushSender
 
-type SenderBuilder func() (PushSender, error)
-
 type PushSender interface {
-	SendNotification(userID int, notification map[string]interface{}, auth map[string]interface{})
+	SendNotification(userID string, notification *types.Notification)
 }
 
 // MARK: SenderPool
 
 type SenderPool struct {
-	ID				string
-	senderCount 	int
-	senderPool 		[]PushSender
-	senderFactory 	func() PushSender
+	ID			string
+	senderCount	uint32
+	senderPool 	[]PushSender
 }
 
-func (ph *SenderPool) SendNotification(userID int, notification map[string]interface{}, auth map[string]interface{}) {
-	go func(userID int) {
-		if ph.senderCount == 0 { return }
-		ph.senderPool[userID % ph.senderCount].SendNotification(userID, notification, auth)
-	}(userID)
-}
-
-func NewSenderPool(ID string, builder SenderBuilder, poolSize int) *SenderPool {
+func NewSenderPool(ID string, builder func() (PushSender, error), poolSize uint32) *SenderPool {
 	sp := &SenderPool{}
 
 	// assign pool identifier
@@ -43,7 +37,7 @@ func NewSenderPool(ID string, builder SenderBuilder, poolSize int) *SenderPool {
 	sp.senderCount = poolSize
 	sp.senderPool  = make([]PushSender, 0, poolSize)
 
-	for i := 0; i < sp.senderCount; i++ {
+	for i := uint32(0); i < sp.senderCount; i++ {
 		ps, err := builder()
 		if err != nil {
 			logger.Errorf("sender: %v", err)
@@ -53,4 +47,14 @@ func NewSenderPool(ID string, builder SenderBuilder, poolSize int) *SenderPool {
 		sp.senderPool = append(sp.senderPool, ps)
 	}
 	return sp
+}
+
+func (ph *SenderPool) SendNotification(userID string, notification *types.Notification) {
+	go ph.send(userID, notification)
+}
+
+func (ph *SenderPool) send(userID string, notification *types.Notification) {
+	h := fnv.New32a()
+	h.Write([]byte(userID))
+	ph.senderPool[h.Sum32() % ph.senderCount].SendNotification(userID, notification)
 }

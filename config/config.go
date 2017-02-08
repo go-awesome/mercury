@@ -40,13 +40,13 @@ type MySqlConfig struct {
 }
 
 type ApnsConfig struct {
-    PoolSize        int     `toml:"pool_size"`
+    PoolSize        uint32  `toml:"pool_size"`
     CertFile        string  `toml:"cert"`
     SandboxCertFile string  `toml:"sandbox_cert"`
 }
 
 type GcmConfig struct {
-    PoolSize int `toml:"pool_size"`
+    PoolSize uint32 `toml:"pool_size"`
 }
 
 var Logger  LoggerConfig
