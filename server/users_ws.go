@@ -25,7 +25,7 @@ func NewUsersWS() *restful.WebService {
 	pushSender = NewPushSender()
 
 	ws := new(restful.WebService)
-	ws.Path("/users")
+	ws.Path("v1/users")
 
 	ws.Route(ws.PUT("{user_id}/{sender_id}/{token}").To(pushSender.registerToken))
 	ws.Route(ws.DELETE("{user_id}/{sender_id}").To(pushSender.unregisterToken))

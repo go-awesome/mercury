@@ -43,15 +43,19 @@ func (s *Server) Run() {
 	[PUT]    /users/34/gcm
 	[DELETE] /users/34/gcm
 
-	[POST] /users/34/apns/push
+	[POST]   /users/34/apns
 
-	[GET] /badges/34/gcm
+	[GET]    /users/apns/gone
+	[DELETE] /users/apns/gone
+
+	[GET]    /badges/34/gcm
 	[DELETE] /badges/34/gcm
 	*/
 
 	// configure services
-	restful.Add(NewPingWS()) /* /ping */
-	restful.Add(NewUsersWS()) /* /users */
+	restful.Add(NewPingWS())   /* /ping */
+	restful.Add(NewUsersWS())  /* /users */
+	restful.Add(NewBadgesWs()) /* /badges */
 
 	addr := config.Server.ListAddr + ":" + cmdPort
 

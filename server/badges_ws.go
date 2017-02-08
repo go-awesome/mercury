@@ -14,7 +14,7 @@ import (
 
 func NewBadgesWs() *restful.WebService  {
 	ws := new(restful.WebService)
-	ws.Path("/badges")
+	ws.Path("v1/badges")
 
 	ws.Route(ws.GET("{user_id}/{sender_id}").To(badge))
 	ws.Route(ws.DELETE("{user_id}/{sender_id}").To(clearBadge))
