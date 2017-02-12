@@ -34,8 +34,8 @@ func NewApnsSenderPool() *SenderHub {
 // MARK: ApnsPushSender
 
 type ApnsPushSender struct {
-	client 			*http.Client
-	sandboxClient 	*http.Client
+	client        *http.Client
+	sandboxClient *http.Client
 }
 
 func NewApnsPushSender() (PushSender, error) {

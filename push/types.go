@@ -34,7 +34,7 @@ type Notification struct {
 	Sound            string      `json:"sound,omitempty"`
 	Icon             string      `json:"icon,omitempty"`
 	Color            string      `json:"color,omitempty"`
-	Category		 string		 `json:"category,omitempty"`
+	Category         string      `json:"category,omitempty"`
 	ContentAvailable bool        `json:"content_available,omitempty"`
 	MutableContent   bool        `json:"mutable_content,omitempty"`
 	Extra            interface{} `json:"extra,omitempty"`

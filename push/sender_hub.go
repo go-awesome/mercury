@@ -1,5 +1,5 @@
 //
-//  sender.go
+//  sender_hub.go
 //  mercury
 //
 //  Copyright (c) 2017 Miguel Ángel Ortuño. All rights reserved.
@@ -9,14 +9,14 @@ package push
 
 import (
 	"hash/fnv"
-	"sync/atomic"
-	"net/http"
-	"golang.org/x/net/http2"
-	"github.com/ortuman/mercury/config"
-	"github.com/ortuman/mercury/logger"
 	"fmt"
 	"log"
 	"errors"
+	"net/http"
+	"sync/atomic"
+	"golang.org/x/net/http2"
+	"github.com/ortuman/mercury/config"
+	"github.com/ortuman/mercury/logger"
 )
 
 // MARK: PushSender
@@ -32,6 +32,13 @@ type PushSender interface {
 	SendNotification(to *To, notification *Notification) int
 }
 
+type PushStats struct {
+	DeliveredCount 	  uint64
+	UnregisteredCount uint64
+	FailedCount		  uint64
+	AvgRequestTime	  uint64
+}
+
 // MARK: SenderHub
 
 type SenderHub struct {
@@ -41,6 +48,7 @@ type SenderHub struct {
 	deliveredCount    uint64
 	unregisteredCount uint64
 	failedCount       uint64
+	avgRequestTime	  uint64
 }
 
 var unregisteredCallbackClient *http.Client
@@ -75,9 +83,17 @@ func NewSenderPool(ID string, builder func() (PushSender, error), poolSize uint3
 	return sh
 }
 
+func (sh *SenderHub) GetID() string {
+	return sh.ID
+}
+
 func (sh *SenderHub) SendNotification(to *To, notification *Notification) int {
 	go sh.send(to, notification)
 	return StatusNone
+}
+
+func (sh *SenderHub) Stats() PushStats {
+	return PushStats{}
 }
 
 func (sh *SenderHub) send(to *To, notification *Notification) {
@@ -109,10 +125,14 @@ func notifyUnregistered(senderID, token string) error {
 	unregisteredURL := config.Server.UnregisteredCallback + "/" + senderID + "/" + token
 
 	req, err := http.NewRequest("GET", unregisteredURL, nil)
-	if err != nil { return err }
+	if err != nil {
+		return err
+	}
 
 	resp, err := unregisteredCallbackClient.Do(req)
-	if err != nil { return err }
+	if err != nil {
+		return err
+	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {

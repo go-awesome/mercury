@@ -16,7 +16,7 @@ import (
 	"github.com/ortuman/mercury/push"
 )
 
-func NewBadgesWS() *restful.WebService  {
+func NewBadgesWS() *restful.WebService {
 	ws := new(restful.WebService).Path("/v1/badges")
 
 	ws.Route(ws.GET("/{sender-id}/{token}").To(badge))

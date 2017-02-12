@@ -39,12 +39,6 @@ func (s *Server) Run() {
 	logger.Infof("server: %s %s", config.ServiceName, config.ServiceVersion)
 	logger.Infof("server: accepting commands at %s:%s [%s]", config.Server.BindAddress, cmdPort, runtime.Version())
 
-	/*
-	[POST]   v1/push
-	[GET]    v1/badges/apns/
-	[DELETE] v1/badges/apns/gcm
-	*/
-
 	// configure services
 	restful.Add(NewPingWS())   /* /ping */
 	restful.Add(NewPushWS())   /* /push */

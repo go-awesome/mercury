@@ -8,8 +8,8 @@
 package push
 
 type ApnsRequest struct {
-	APS            APS           `json:"aps,omitempty"`
-	Notification   *Notification `json:"notification,omitempty"`
+	APS          APS           `json:"aps,omitempty"`
+	Notification *Notification `json:"notification,omitempty"`
 }
 
 type APS struct {
