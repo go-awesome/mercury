@@ -34,10 +34,11 @@ type PushSender interface {
 }
 
 type PushStats struct {
-	DeliveredCount 	  uint64
-	UnregisteredCount uint64
-	FailedCount		  uint64
-	AvgRequestTime	  uint64
+	MaxConn           uint32    `json:"max_conn"`
+	DeliveredCount    uint64    `json:"delivered_count"`
+	UnregisteredCount uint64    `json:"unregistered_count"`
+	FailedCount       uint64    `json:"failed_count"`
+	AvgRequestTime    uint64    `json:"avg_request_time_msec"`
 }
 
 // MARK: SenderHub
@@ -49,7 +50,7 @@ type SenderHub struct {
 	deliveredCount    uint64
 	unregisteredCount uint64
 	failedCount       uint64
-	sumRequestTime	  uint64
+	sumRequestTime    uint64
 }
 
 var unregisteredCallbackClient *http.Client
@@ -95,11 +96,14 @@ func (sh *SenderHub) SendNotification(to *To, notification *Notification) int {
 
 func (sh *SenderHub) Stats() PushStats {
 	stats := PushStats{
+		MaxConn:           sh.senderCount,
 		DeliveredCount:    atomic.LoadUint64(&sh.deliveredCount),
 		UnregisteredCount: atomic.LoadUint64(&sh.unregisteredCount),
 		FailedCount:       atomic.LoadUint64(&sh.failedCount),
 	}
-	stats.AvgRequestTime = atomic.LoadUint64(&sh.sumRequestTime) / stats.DeliveredCount
+	if stats.DeliveredCount > 0 {
+		stats.AvgRequestTime = atomic.LoadUint64(&sh.sumRequestTime) / stats.DeliveredCount
+	}
 	return stats
 }
 

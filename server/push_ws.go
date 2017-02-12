@@ -13,11 +13,9 @@ import (
 
 var globalSender *pushSender
 
-func init() {
-	globalSender = newPushSender()
-}
-
 func NewPushWS() *restful.WebService {
+	globalSender = newPushSender()
+
 	ws := new(restful.WebService).Path("/v1/push").Consumes(restful.MIME_JSON)
 
 	ws.Route(ws.POST("").To(globalSender.push))
