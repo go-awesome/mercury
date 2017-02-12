@@ -12,8 +12,6 @@ import (
 	"github.com/emicklei/go-restful"
 	"github.com/ortuman/mercury/push"
 	"github.com/ortuman/mercury/logger"
-	"bytes"
-	"encoding/json"
 )
 
 type pushSender struct {
@@ -50,20 +48,11 @@ func (ps *pushSender) push(request *restful.Request, response *restful.Response)
 	response.WriteHeader(http.StatusOK)
 }
 
-func (ps *pushSender) stats(request *restful.Request, response *restful.Response) {
+func (ps *pushSender) Stats() map[string]push.PushStats {
 	stats := map[string]push.PushStats{}
 
 	for senderID, sender := range ps.senders {
 		stats[senderID] = sender.Stats()
 	}
-
-	buf := new(bytes.Buffer)
-	if err := json.NewEncoder(buf).Encode(stats); err != nil {
-		logger.Errorf("push_sender: %v", err)
-		response.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	response.Header().Set("Content-Type", "application/json")
-	response.Write(buf.Bytes())
+	return stats
 }

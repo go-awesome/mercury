@@ -40,9 +40,10 @@ func (s *Server) Run() {
 	logger.Infof("server: accepting commands at %s:%s [%s]", config.Server.BindAddress, cmdPort, runtime.Version())
 
 	// configure services
-	restful.Add(NewPingWS())   /* /ping */
-	restful.Add(NewPushWS())   /* /push */
-	restful.Add(NewBadgesWS()) /* /badges */
+	restful.Add(NewPingWS())   // /ping
+	restful.Add(NewPushWS())   // /v1/push
+	restful.Add(NewBadgesWS()) // /v1/badges
+	restful.Add(NewStatsWS())  // /v1/stats
 
 	addr := config.Server.BindAddress + ":" + cmdPort
 
