@@ -15,6 +15,7 @@ import (
 	"golang.org/x/net/http2"
 	"github.com/ortuman/mercury/config"
 	"github.com/ortuman/mercury/logger"
+	"time"
 )
 
 const gcmSendEndpoint = "https://android.googleapis.com/gcm/send"
@@ -43,7 +44,7 @@ func NewGcmPushSender() (PushSender, error) {
 	return s, nil
 }
 
-func (s *GcmPushSender) SendNotification(to *To, notification *Notification) int {
+func (s *GcmPushSender) SendNotification(to *To, notification *Notification) (int, time.Duration) {
 
 	gcmNotification := &GcmNotification{}
 	gcmNotification.Title = notification.Title
@@ -62,46 +63,50 @@ func (s *GcmPushSender) SendNotification(to *To, notification *Notification) int
 	b, err := json.Marshal(&gcmReq)
 	if err != nil {
 		logger.Errorf("gcm: %v", err)
-		return StatusFailed
+		return StatusFailed, 0
 	}
 
 	req, err := http.NewRequest("POST", gcmSendEndpoint, bytes.NewReader(b))
 	if err != nil {
 		logger.Errorf("gcm: %v", err)
-		return StatusFailed
+		return StatusFailed, 0
 	}
 	req.Header.Add("Content-Type", "application/json")
 	req.Header.Add("Authorization", fmt.Sprintf("key=%s", config.Gcm.ApiKey))
 
+	start := time.Now().UnixNano()
 	resp, err := s.client.Do(req)
+	end := time.Now().UnixNano()
+	reqElapsed := time.Duration((end - start)) / time.Millisecond
+
 	if err != nil {
 		logger.Errorf("gcm: %v", err)
-		return StatusFailed
+		return StatusFailed, reqElapsed
 	}
 	defer resp.Body.Close()
 
 	gcmResp := &GcmResponse{}
 	if err := json.NewDecoder(resp.Body).Decode(gcmResp); err != nil {
 		logger.Errorf("gcm: %v", err)
-		return StatusFailed
+		return StatusFailed, 0
 	}
 
 	if resp.StatusCode == http.StatusOK {
 		for _, result := range gcmResp.Results {
 			if len(result.Error) == 0 {
 				logger.Debugf("gcm: notification delivered: %s (%s)", notification.ID, to.To)
-				return StatusDelivered
+				return StatusDelivered, reqElapsed
 			} else if len(result.Error) > 0 && result.Error == gcmNotRegisteredError {
 				logger.Debugf("gcm: not registered: %s", to.To)
-				return StatusNotRegistered
+				return StatusNotRegistered, 0
 			} else {
 				logger.Errorf("gcm: notification couldn't be delivered: %s: %s: (%s)", notification.ID, result.Error, to.To)
-				return StatusFailed
+				return StatusFailed, 0
 			}
 		}
 
 	} else {
 		logger.Errorf("gcm: status code %d", resp.StatusCode)
 	}
-	return StatusNone
+	return StatusNone, 0
 }

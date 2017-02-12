@@ -76,7 +76,7 @@ func NewApnsPushSender() (PushSender, error) {
 	return s, nil
 }
 
-func (s *ApnsPushSender) SendNotification(to *To, notification *Notification) int {
+func (s *ApnsPushSender) SendNotification(to *To, notification *Notification) (int, time.Duration) {
 
 	// compose request
 	apnsReq := ApnsRequest{}
@@ -104,13 +104,13 @@ func (s *ApnsPushSender) SendNotification(to *To, notification *Notification) in
 	b, err := json.Marshal(&apnsReq)
 	if err != nil {
 		logger.Errorf("apns: %v", err)
-		return StatusFailed
+		return StatusFailed, 0
 	}
 
 	req, err := http.NewRequest("POST", sendEndpoint, bytes.NewReader(b))
 	if err != nil {
 		logger.Errorf("apns: %v", err)
-		return StatusFailed
+		return StatusFailed, 0
 	}
 	expiration := time.Now().Add(86400 * time.Second)
 
@@ -119,10 +119,14 @@ func (s *ApnsPushSender) SendNotification(to *To, notification *Notification) in
 	req.Header.Add("apns-priority", "10")
 	req.Header.Add("apns-topic", "github.com/ortuman")
 
+	start := time.Now().UnixNano()
 	resp, err := s.client.Do(req)
+	end := time.Now().UnixNano()
+	reqElapsed := time.Duration((end - start)) / time.Millisecond
+
 	if err != nil {
 		logger.Errorf("apns: %v", err)
-		return StatusFailed
+		return StatusFailed, reqElapsed
 	}
 	defer resp.Body.Close()
 
@@ -135,9 +139,11 @@ func (s *ApnsPushSender) SendNotification(to *To, notification *Notification) in
 	} else if resp.StatusCode == http.StatusGone {
 		log = fmt.Sprintf("apns_sender: not registered: %s", to.To)
 		status = StatusNotRegistered
+		reqElapsed = 0
 	} else {
 		log = fmt.Sprintf("apns_sender: notification COULDN'T be delivered: %s (status: %v)", notification.ID, resp.StatusCode)
 		status = StatusFailed
+		reqElapsed = 0
 	}
 
 	if to.Sandbox {
@@ -145,5 +151,5 @@ func (s *ApnsPushSender) SendNotification(to *To, notification *Notification) in
 	}
 	logger.Debugf(log)
 
-	return status
+	return status, reqElapsed
 }

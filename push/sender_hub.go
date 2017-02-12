@@ -11,9 +11,10 @@ import (
 	"hash/fnv"
 	"fmt"
 	"log"
+	"time"
 	"errors"
-	"net/http"
 	"sync/atomic"
+	"net/http"
 	"golang.org/x/net/http2"
 	"github.com/ortuman/mercury/config"
 	"github.com/ortuman/mercury/logger"
@@ -29,7 +30,7 @@ const (
 )
 
 type PushSender interface {
-	SendNotification(to *To, notification *Notification) int
+	SendNotification(to *To, notification *Notification) (int, time.Duration)
 }
 
 type PushStats struct {
@@ -48,7 +49,7 @@ type SenderHub struct {
 	deliveredCount    uint64
 	unregisteredCount uint64
 	failedCount       uint64
-	avgRequestTime	  uint64
+	sumRequestTime	  uint64
 }
 
 var unregisteredCallbackClient *http.Client
@@ -93,18 +94,25 @@ func (sh *SenderHub) SendNotification(to *To, notification *Notification) int {
 }
 
 func (sh *SenderHub) Stats() PushStats {
-	return PushStats{}
+	stats := PushStats{
+		DeliveredCount:    atomic.LoadUint64(&sh.deliveredCount),
+		UnregisteredCount: atomic.LoadUint64(&sh.unregisteredCount),
+		FailedCount:       atomic.LoadUint64(&sh.failedCount),
+	}
+	stats.AvgRequestTime = atomic.LoadUint64(&sh.sumRequestTime) / stats.DeliveredCount
+	return stats
 }
 
 func (sh *SenderHub) send(to *To, notification *Notification) {
 	h := fnv.New32a()
 	h.Write([]byte(to.SenderID + ":" + to.To))
 
-	status := sh.senderPool[h.Sum32() % sh.senderCount].SendNotification(to, notification)
+	status, reqElapsed := sh.senderPool[h.Sum32() % sh.senderCount].SendNotification(to, notification)
 
 	switch status {
 	case StatusDelivered:
 		atomic.AddUint64(&sh.deliveredCount, 1)
+		atomic.AddUint64(&sh.sumRequestTime, uint64(reqElapsed))
 
 	case StatusNotRegistered:
 		if err := notifyUnregistered(to.SenderID, to.To); err != nil {
