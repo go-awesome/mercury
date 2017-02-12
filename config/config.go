@@ -29,9 +29,9 @@ type LoggerConfig struct {
 }
 
 type ServerConfig struct {
-    BindAddress         string  `toml:"bind_address"`
-    Port                int     `toml:"port"`
-    UnregisterCallback  string  `toml:"unregister_callback"`
+    BindAddress           string  `toml:"bind_address"`
+    Port                  int     `toml:"port"`
+    UnregisteredCallback  string  `toml:"unregistered_callback"`
 }
 
 type RedisConfig struct {

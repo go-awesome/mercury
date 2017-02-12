@@ -9,21 +9,48 @@ package push
 
 import (
 	"hash/fnv"
+	"sync/atomic"
+	"net/http"
+	"golang.org/x/net/http2"
+	"github.com/ortuman/mercury/config"
 	"github.com/ortuman/mercury/logger"
+	"fmt"
+	"log"
+	"errors"
 )
 
 // MARK: PushSender
 
+const (
+	StatusNone = iota
+	StatusDelivered
+	StatusNotRegistered
+	StatusFailed
+)
+
 type PushSender interface {
-	SendNotification(to *To, notification *Notification)
+	SendNotification(to *To, notification *Notification) int
 }
 
 // MARK: SenderHub
 
 type SenderHub struct {
-	ID			string
-	senderCount	uint32
-	senderPool 	[]PushSender
+	ID                string
+	senderCount       uint32
+	senderPool        []PushSender
+	deliveredCount    uint64
+	unregisteredCount uint64
+	failedCount       uint64
+}
+
+var unregisteredCallbackClient *http.Client
+
+func init() {
+	transport := &http.Transport{}
+	if err := http2.ConfigureTransport(transport); err != nil {
+		log.Fatalf("sender_hub: %v", err)
+	}
+	unregisteredCallbackClient = &http.Client{Transport: transport}
 }
 
 func NewSenderPool(ID string, builder func() (PushSender, error), poolSize uint32) *SenderHub {
@@ -34,12 +61,12 @@ func NewSenderPool(ID string, builder func() (PushSender, error), poolSize uint3
 
 	// initialize sender pool
 	sh.senderCount = poolSize
-	sh.senderPool  = make([]PushSender, 0, poolSize)
+	sh.senderPool = make([]PushSender, 0, poolSize)
 
 	for i := uint32(0); i < sh.senderCount; i++ {
 		ps, err := builder()
 		if err != nil {
-			logger.Errorf("sender: %v", err)
+			logger.Errorf("sender_hub: %v", err)
 			sh.senderCount = 0
 			break
 		}
@@ -48,12 +75,48 @@ func NewSenderPool(ID string, builder func() (PushSender, error), poolSize uint3
 	return sh
 }
 
-func (sh *SenderHub) SendNotification(to *To, notification *Notification) {
+func (sh *SenderHub) SendNotification(to *To, notification *Notification) int {
 	go sh.send(to, notification)
+	return StatusNone
 }
 
 func (sh *SenderHub) send(to *To, notification *Notification) {
 	h := fnv.New32a()
 	h.Write([]byte(to.SenderID + ":" + to.To))
-	sh.senderPool[h.Sum32() % sh.senderCount].SendNotification(to, notification)
+
+	status := sh.senderPool[h.Sum32() % sh.senderCount].SendNotification(to, notification)
+
+	switch status {
+	case StatusDelivered:
+		atomic.AddUint64(&sh.deliveredCount, 1)
+
+	case StatusNotRegistered:
+		if err := notifyUnregistered(to.SenderID, to.To); err != nil {
+			logger.Errorf("sender_hub: %v", err)
+		} else {
+			atomic.AddUint64(&sh.unregisteredCount, 1)
+		}
+
+	case StatusFailed:
+		atomic.AddUint64(&sh.failedCount, 1)
+
+	default:
+		break
+	}
+}
+
+func notifyUnregistered(senderID, token string) error {
+	unregisteredURL := config.Server.UnregisteredCallback + "/" + senderID + "/" + token
+
+	req, err := http.NewRequest("GET", unregisteredURL, nil)
+	if err != nil { return err }
+
+	resp, err := unregisteredCallbackClient.Do(req)
+	if err != nil { return err }
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return errors.New(fmt.Sprintf("sender_hub: unregistered callback: status code %d", resp.StatusCode))
+	}
+	return nil
 }

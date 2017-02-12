@@ -76,7 +76,7 @@ func NewApnsPushSender() (PushSender, error) {
 	return s, nil
 }
 
-func (s *ApnsPushSender) SendNotification(to *To, notification *Notification) {
+func (s *ApnsPushSender) SendNotification(to *To, notification *Notification) int {
 
 	// compose request
 	apnsReq := ApnsRequest{}
@@ -104,13 +104,13 @@ func (s *ApnsPushSender) SendNotification(to *To, notification *Notification) {
 	b, err := json.Marshal(&apnsReq)
 	if err != nil {
 		logger.Errorf("apns: %v", err)
-		return
+		return StatusFailed
 	}
 
 	req, err := http.NewRequest("POST", sendEndpoint, bytes.NewReader(b))
 	if err != nil {
 		logger.Errorf("apns: %v", err)
-		return
+		return StatusFailed
 	}
 	expiration := time.Now().Add(86400 * time.Second)
 
@@ -122,21 +122,28 @@ func (s *ApnsPushSender) SendNotification(to *To, notification *Notification) {
 	resp, err := s.client.Do(req)
 	if err != nil {
 		logger.Errorf("apns: %v", err)
-		return
+		return StatusFailed
 	}
 	defer resp.Body.Close()
+
+	var status int
 
 	var log string
 	if resp.StatusCode == http.StatusOK {
 		log = fmt.Sprintf("apns_sender: notification delivered: %s (%d)", notification.ID, apnsReq.APS.Badge)
+		status = StatusDelivered
 	} else if resp.StatusCode == http.StatusGone {
 		log = fmt.Sprintf("apns_sender: not registered: %s", to.To)
+		status = StatusNotRegistered
 	} else {
 		log = fmt.Sprintf("apns_sender: notification COULDN'T be delivered: %s (status: %v)", notification.ID, resp.StatusCode)
+		status = StatusFailed
 	}
 
 	if to.Sandbox {
 		log += " [sandbox]"
 	}
 	logger.Debugf(log)
+
+	return status
 }
