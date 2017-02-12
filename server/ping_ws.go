@@ -10,7 +10,7 @@ package server
 import (
 	"net/http"
 	"github.com/emicklei/go-restful"
-	"github.com/Hooks-Alerts/mercuryx/logger"
+	"github.com/ortuman/mercury/logger"
 )
 
 func NewPingWS() *restful.WebService {
@@ -21,7 +21,7 @@ func NewPingWS() *restful.WebService {
 }
 
 // Checks if the server is alive. This is useful for monitoring tools, load-balancers and automated scripts.
-func ping(request *restful.Request, response *restful.Response) {
+func ping(_ *restful.Request, response *restful.Response) {
 	logger.Infof("ping_ws: pong...")
 	response.WriteHeader(http.StatusOK)
 }

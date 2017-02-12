@@ -8,21 +8,26 @@
 package push
 
 import (
+	"fmt"
+	"time"
+	"bytes"
+	"strconv"
 	"net/http"
 	"crypto/tls"
+	"encoding/json"
 	"golang.org/x/net/http2"
 	"github.com/ortuman/mercury/logger"
 	"github.com/ortuman/mercury/config"
 	"github.com/ortuman/mercury/cert"
-	"github.com/ortuman/mercury/types"
+	"github.com/ortuman/mercury/storage"
 )
 
 const apnsSendEndpoint = "https://api.push.apple.com"
 const apnsSandboxSendEndpoint = "https://api.development.push.apple.com"
 
-func NewApnsSenderPool() *SenderPool {
-	s := NewSenderPool("apns", NewApnsPushSender, config.Apns.PoolSize)
-	logger.Infof("apns: initialized apns sender (pool size: %d)", s.senderCount)
+func NewApnsSenderPool() *SenderHub {
+	s := NewSenderPool("apns", NewApnsPushSender, config.Apns.MaxConn)
+	logger.Infof("apns: initialized apns sender (max conn: %d)", s.senderCount)
 	return s
 }
 
@@ -71,62 +76,67 @@ func NewApnsPushSender() (PushSender, error) {
 	return s, nil
 }
 
-func (s *ApnsPushSender) SendNotification(userID string, notification *types.Notification) {
+func (s *ApnsPushSender) SendNotification(to *To, notification *Notification) {
 
 	// compose request
-	/*
 	apnsReq := ApnsRequest{}
-	apnsReq.APS.Alert.Body = apnsNotification.Body
-	apnsReq.APS.Alert.Title = apnsNotification.Title
-	apnsReq.APS.Badge = 1 // badge
+	apnsReq.APS.Alert.Body = notification.Body
+	apnsReq.APS.Alert.Title = notification.Title
 
-	soundFile := "base.mp3"
-	apnsReq.APS.Sound = &soundFile
+	badge, _ := storage.Instance().GetBadge(to.SenderID, to.To)
+	apnsReq.APS.Badge = uint(badge)
 
-	apnsReq.APS.ContentAvailable = 1
-	apnsReq.APS.MutableContent = 1
-	apnsReq.APS.Category = "NOTIFICATION_CATEGORY"
+	apnsReq.APS.Sound = notification.Sound
+	apnsReq.APS.ContentAvailable = notification.ContentAvailable
+	apnsReq.APS.MutableContent = notification.MutableContent
+	apnsReq.APS.Category = notification.Category
 
 	apnsReq.Notification = notification
-	apnsReq.NotificationID = apnsNotification.Identifier
 
-	var req *Request
-	if !apnsAuth.Sandbox {
-		req = NewRequest(s.client)
-		req.URL(fmt.Sprintf("%v/3/device/%v", apnsSendEndpoint, apnsAuth.Token))
+	var sendEndpoint string
+	if !to.Sandbox {
+		sendEndpoint = apnsSendEndpoint
 	} else {
-		req = NewRequest(s.sandboxClient)
-		req.URL(fmt.Sprintf("%v/3/device/%v", apnsSandboxSendEndpoint, apnsAuth.Token))
+		sendEndpoint = apnsSandboxSendEndpoint
 	}
-	defer req.Close()
 
-	// compose headers
-	headers := make(map[string]string)
-	headers["Content-Type"] = "application/json"
-
-	expiration := time.Now().Add(86400 * time.Second)
-	headers["apns-expiration"] = strconv.FormatInt(expiration.Unix(), 10)
-	headers["apns-priority"] = "10"
-	headers["apns-topic"] = "github.com/ortuman"
-
-	statusCode, err := req.Headers(headers).POST().SendEntity(&apnsReq).Do(nil)
+	// perform request
+	b, err := json.Marshal(&apnsReq)
 	if err != nil {
 		logger.Errorf("apns: %v", err)
 		return
 	}
 
+	req, err := http.NewRequest("POST", sendEndpoint, bytes.NewReader(b))
+	if err != nil {
+		logger.Errorf("apns: %v", err)
+		return
+	}
+	expiration := time.Now().Add(86400 * time.Second)
+
+	req.Header.Add("Content-Type", "application/json")
+	req.Header.Add("apns-expiration", strconv.FormatInt(expiration.Unix(), 10))
+	req.Header.Add("apns-priority", "10")
+	req.Header.Add("apns-topic", "github.com/ortuman")
+
+	resp, err := s.client.Do(req)
+	if err != nil {
+		logger.Errorf("apns: %v", err)
+		return
+	}
+	defer resp.Body.Close()
+
 	var log string
-	if statusCode == http.StatusOK {
-		log = fmt.Sprintf("apns_sender: notification delivered: %s (%d)", apnsReq.NotificationID, apnsReq.APS.Badge)
-	} else if statusCode == http.StatusGone {
-		log = fmt.Sprintf("apns_sender: not registered: %s", apnsAuth.Token)
+	if resp.StatusCode == http.StatusOK {
+		log = fmt.Sprintf("apns_sender: notification delivered: %s (%d)", notification.ID, apnsReq.APS.Badge)
+	} else if resp.StatusCode == http.StatusGone {
+		log = fmt.Sprintf("apns_sender: not registered: %s", to.To)
 	} else {
-		log = fmt.Sprintf("apns_sender: notification COULDN'T be delivered: %s (status: %v)", apnsReq.NotificationID, statusCode)
+		log = fmt.Sprintf("apns_sender: notification COULDN'T be delivered: %s (status: %v)", notification.ID, resp.StatusCode)
 	}
 
-	if apnsAuth.Sandbox {
+	if to.Sandbox {
 		log += " [sandbox]"
 	}
 	logger.Debugf(log)
-	*/
 }

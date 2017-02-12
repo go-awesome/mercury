@@ -18,7 +18,7 @@ const ServiceVersion = "1.0"
 type globalConfig struct {
     Logger  LoggerConfig    `toml:"logger"`
     Server  ServerConfig    `toml:"server"`
-    MySql   MySqlConfig     `toml:"my_sql"`
+    Redis   RedisConfig     `toml:"redis"`
     Apns    ApnsConfig      `toml:"apns"`
     Gcm     GcmConfig       `toml:"gcm"`
 }
@@ -29,29 +29,29 @@ type LoggerConfig struct {
 }
 
 type ServerConfig struct {
-    ListAddr      string  `toml:"bind_address"`
-    Port          int     `toml:"port"`
+    BindAddress         string  `toml:"bind_address"`
+    Port                int     `toml:"port"`
+    UnregisterCallback  string  `toml:"unregister_callback"`
 }
 
-type MySqlConfig struct {
+type RedisConfig struct {
     Host       string  `toml:"host"`
-    User       string  `toml:"user"`
-    Password   string  `toml:"pass"`
 }
 
 type ApnsConfig struct {
-    PoolSize        uint32  `toml:"pool_size"`
+    MaxConn         uint32  `toml:"max_conn"`
     CertFile        string  `toml:"cert"`
     SandboxCertFile string  `toml:"sandbox_cert"`
 }
 
 type GcmConfig struct {
-    PoolSize uint32 `toml:"pool_size"`
+    MaxConn uint32  `toml:"max_conn"`
+    ApiKey  string  `toml:"api_key"`
 }
 
 var Logger  LoggerConfig
 var Server  ServerConfig
-var MySql   MySqlConfig
+var Redis   RedisConfig
 var Apns    ApnsConfig
 var Gcm     GcmConfig
 
@@ -66,7 +66,7 @@ func Load(cfgFile string) {
     } else {
         Logger = conf.Logger
         Server = conf.Server
-        MySql  = conf.MySql
+        Redis  = conf.Redis
         Apns   = conf.Apns
         Gcm    = conf.Gcm
     }
@@ -79,19 +79,17 @@ func initDefaultSettings() {
     Logger.Logfile = "mercury.log"
 
     // server
-    Server.ListAddr = ""
+    Server.BindAddress = ""
     Server.Port = 8080
 
     // storage
-    MySql.Host     = "localhost:3306"
-    MySql.User     = "root"
-    MySql.Password = "1234"
+    Redis.Host = "localhost:6379"
 
     // apns
-    Apns.PoolSize = 16
+    Apns.MaxConn = 16
     Apns.CertFile = "cert.p12"
     Apns.SandboxCertFile = "cert.p12"
 
     // gcm
-    Gcm.PoolSize = 16
+    Gcm.MaxConn = 16
 }

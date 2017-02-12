@@ -12,13 +12,9 @@ import (
 )
 
 type storage interface {
-
-	InsertSenderInfo(senderInfo *SenderInfo) error
-
-	FetchSenderInfo(userID string, senderID string) (*SenderInfo, error)
-	FetchSenderInfoArray(userID string) ([]*SenderInfo, error)
-
-	DeleteSenderInfo(userID string, senderID string) error
+	IncreaseBadge(senderID, token string) error
+	GetBadge(senderID, token string) (uint64, error)
+	ClearBadge(senderID, token string) error
 }
 
 // singleton interface
@@ -29,7 +25,7 @@ var  (
 
 func Instance() storage {
 	once.Do(func() {
-		instance = NewMySql()
+		instance = NewRedis()
 	})
 	return instance
 }

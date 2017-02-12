@@ -37,27 +37,20 @@ func (s *Server) Run() {
 	cmdPort := strconv.Itoa(config.Server.Port)
 
 	logger.Infof("server: %s %s", config.ServiceName, config.ServiceVersion)
-	logger.Infof("server: accepting commands at %s:%s [%s]", config.Server.ListAddr, cmdPort, runtime.Version())
+	logger.Infof("server: accepting commands at %s:%s [%s]", config.Server.BindAddress, cmdPort, runtime.Version())
 
 	/*
-	[PUT]    /users/34/gcm
-	[DELETE] /users/34/gcm
-
-	[POST]   /users/34/apns
-
-	[GET]    /users/apns/gone
-	[DELETE] /users/apns/gone
-
-	[GET]    /badges/34/gcm
-	[DELETE] /badges/34/gcm
+	[POST]   v1/push
+	[GET]    v1/badges/apns/
+	[DELETE] v1/badges/apns/gcm
 	*/
 
 	// configure services
 	restful.Add(NewPingWS())   /* /ping */
-	restful.Add(NewUsersWS())  /* /users */
-	restful.Add(NewBadgesWs()) /* /badges */
+	restful.Add(NewPushWS())   /* /push */
+	restful.Add(NewBadgesWS()) /* /badges */
 
-	addr := config.Server.ListAddr + ":" + cmdPort
+	addr := config.Server.BindAddress + ":" + cmdPort
 
 	if err := http.ListenAndServe(addr, nil); err != nil {
 		logger.Errorf("server: ListenAndServe: %v", err)
