@@ -15,6 +15,7 @@ import (
 	"encoding/json"
 	"github.com/emicklei/go-restful"
 	"github.com/ortuman/mercury/logger"
+	"github.com/ortuman/mercury/config"
 )
 
 type goStats struct {
@@ -175,6 +176,7 @@ func writeStats(stats interface{}, response *restful.Response) {
 		return
 	}
 
+	response.Header().Set("Server", config.ServiceName + "/" + config.ServiceVersion + " (" + runtime.GOOS + ")")
 	response.Header().Set("Content-Type", "application/json")
 	response.Write(buf.Bytes())
 }

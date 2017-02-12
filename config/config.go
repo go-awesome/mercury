@@ -12,7 +12,7 @@ import (
     "github.com/ortuman/mercury/logger"
 )
 
-const ServiceName    = "mercury"
+const ServiceName    = "Mercury"
 const ServiceVersion = "1.0"
 
 type globalConfig struct {
