@@ -17,18 +17,27 @@ import (
 
 func main() {
 
-	var configFile string
+	var (
+		configFile string
+		help       bool
+	)
+
 	flag.StringVar(&configFile, "config-file", "/etc/mercury/mercury.conf", "configuration path file")
+	flag.BoolVar(&help, "help", false, "show application usage")
 	flag.Parse()
 
-	// load configuration
-	if _, err := os.Stat(configFile); err == nil {
-		config.Load(configFile)
-	} else {
-		fmt.Fprintf(os.Stderr, "mercury: couldn't load config file '%s': %v", configFile, err)
-		os.Exit(-1)
-	}
+	if !help {
+		// load configuration
+		if _, err := os.Stat(configFile); err == nil {
+			config.Load(configFile)
+		} else {
+			fmt.Fprintf(os.Stderr, "mercury: couldn't load config file '%s': %v\n", configFile, err)
+			os.Exit(-1)
+		}
 
-	srv := server.NewServer()
-	srv.Run()
+		srv := server.NewServer()
+		srv.Run()
+	} else {
+		flag.Usage()
+	}
 }
