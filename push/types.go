@@ -8,12 +8,23 @@
 package push
 
 const (
-	ApnsSenderID = "apns"
-	GcmSenderID = "gcm"
+	ApnsSenderID    = "apns"
+	GcmSenderID     = "gcm"
+	SafariSenderID  = "safari"
+	ChromeSenderID  = "chrome"
+	FirefoxSenderID = "firefox"
 )
 
 func IsValidSenderID(senderID string) bool {
-	return senderID == ApnsSenderID || senderID == GcmSenderID
+	switch senderID {
+	case ApnsSenderID:
+	case GcmSenderID:
+	case SafariSenderID:
+	case ChromeSenderID:
+	case FirefoxSenderID:
+		return true
+	}
+	return false
 }
 
 type WebPushKeys struct {

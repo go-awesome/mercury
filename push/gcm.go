@@ -23,7 +23,7 @@ const gcmSendEndpoint = "https://android.googleapis.com/gcm/send"
 const gcmNotRegisteredError = "NotRegistered"
 
 func NewGcmSenderPool() *SenderHub {
-	s := NewSenderPool("gcm", NewGcmPushSender, config.Gcm.MaxConn)
+	s := NewSenderPool(GcmSenderID, NewGcmPushSender, config.Gcm.MaxConn)
 	logger.Infof("gcm: initialized gcm sender (max conn: %d)", s.senderCount)
 	return s
 }

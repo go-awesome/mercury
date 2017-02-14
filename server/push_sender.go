@@ -21,8 +21,10 @@ type pushSender struct {
 func newPushSender() *pushSender {
 	ps := &pushSender{
 		senders: map[string]*push.SenderHub{
-			push.ApnsSenderID : push.NewApnsSenderPool(),
-			push.GcmSenderID  : push.NewGcmSenderPool(),
+			push.ApnsSenderID    : push.NewApnsSenderPool(),
+			push.GcmSenderID     : push.NewGcmSenderPool(),
+			push.ChromeSenderID  : push.NewChromeSenderPool(),
+			push.FirefoxSenderID : push.NewFirefoxSenderPool(),
 		},
 	}
 	return ps

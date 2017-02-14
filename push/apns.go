@@ -26,7 +26,7 @@ const apnsSendEndpoint = "https://api.push.apple.com"
 const apnsSandboxSendEndpoint = "https://api.development.push.apple.com"
 
 func NewApnsSenderPool() *SenderHub {
-	s := NewSenderPool("apns", NewApnsPushSender, config.Apns.MaxConn)
+	s := NewSenderPool(ApnsSenderID, NewApnsPushSender, config.Apns.MaxConn)
 	logger.Infof("apns: initialized apns sender (max conn: %d)", s.senderCount)
 	return s
 }

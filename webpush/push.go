@@ -30,26 +30,26 @@ const privateKeyLength = 32;
 
 const gcmEndpoint = "https://android.googleapis.com/gcm/send"
 
-type VAPID struct {
-	Subject		string
-	PrivateKey	string
-	PublicKey	string
+type vapid struct {
+	subject    string
+	privateKey string
+	publicKey  string
 }
 
 type Push struct {
 	currentGcmApiKey string
-	currentVapid 	 *VAPID
+	currentVapid 	 *vapid
 }
 
 func (p *Push) SetGcmApiKey(gcmApiKey string) {
 	p.currentGcmApiKey = gcmApiKey
 }
 
-func (p *Push) SetVAPID(vapid *VAPID) {
-	p.currentVapid = vapid
+func (p *Push) SetVAPID(subject, privateKey, publicKey string) {
+	p.currentVapid = &vapid{subject: subject, privateKey: privateKey, publicKey: publicKey}
 }
 
-func (p *Push) Do(client *http.Client, sub *Subscription, message string, token string) (*http.Response, error) {
+func (p *Push) Do(client *http.Client, sub *Subscription, message string) (*http.Response, error) {
 	req, err := http.NewRequest("POST", sub.Endpoint, nil)
 	if err != nil {
 		return nil, err
@@ -87,7 +87,7 @@ func (p *Push) Do(client *http.Client, sub *Subscription, message string, token 
 
 		audience := subEndpointURL.Scheme + "://" + subEndpointURL.Host
 
-		auth, criptoKey, err := getVapidHeaders(audience, p.currentVapid.Subject, p.currentVapid.PrivateKey, p.currentVapid.PublicKey)
+		auth, criptoKey, err := getVapidHeaders(audience, p.currentVapid.subject, p.currentVapid.privateKey, p.currentVapid.publicKey)
 		if err != nil { return nil, err }
 
 		req.Header.Add("Authorization", auth)
