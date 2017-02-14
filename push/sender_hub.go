@@ -109,7 +109,7 @@ func (sh *SenderHub) Stats() PushStats {
 
 func (sh *SenderHub) send(to *To, notification *Notification) {
 	h := fnv.New32a()
-	h.Write([]byte(to.SenderID + ":" + to.To))
+	h.Write([]byte(to.UserID))
 
 	status, reqElapsed := sh.senderPool[h.Sum32() % sh.senderCount].SendNotification(to, notification)
 
