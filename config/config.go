@@ -49,6 +49,13 @@ type GcmConfig struct {
     ApiKey  string  `toml:"api_key"`
 }
 
+type WebPushConfig struct {
+    MaxConn    int    `toml:"max_conn"`
+    Subject    string `toml:"sub"`
+    PublicKey  string `toml:"public_key"`
+    PrivateKey string `toml:"private_key"`
+}
+
 var Logger  LoggerConfig
 var Server  ServerConfig
 var Redis   RedisConfig

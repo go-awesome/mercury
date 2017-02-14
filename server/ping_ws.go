@@ -16,7 +16,7 @@ import (
 func NewPingWS() *restful.WebService {
 	s := new(restful.WebService)
 	s.Path("/ping")
-	s.Route(s.GET("/").To(ping))
+	s.Route(s.GET("/*").To(ping))
 	return s
 }
 

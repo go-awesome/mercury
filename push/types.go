@@ -16,10 +16,21 @@ func IsValidSenderID(senderID string) bool {
 	return senderID == ApnsSenderID || senderID == GcmSenderID
 }
 
+type WebPushKeys struct {
+	P256dh string `json:"p256dh"`
+	Auth   string `json:"auth"`
+}
+
+type WebPushSub struct {
+	Endpoint string      `json:"endpoint"`
+	Keys     WebPushKeys `json:"keys"`
+}
+
 type To struct {
-	SenderID string    `json:"sender_id"`
-	To       string    `json:"to"`
-	Sandbox  bool      `json:"sandbox,omitempty"`
+	SenderID string      `json:"sender_id"`
+	To       string      `json:"to,omitempty"`
+	PushSub  *WebPushSub `json:"push_sub,omitempty"`
+	Sandbox  bool        `json:"sandbox,omitempty"`
 }
 
 type Push struct {
