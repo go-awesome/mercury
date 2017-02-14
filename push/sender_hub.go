@@ -119,7 +119,7 @@ func (sh *SenderHub) send(to *To, notification *Notification) {
 		atomic.AddUint64(&sh.sumRequestTime, uint64(reqElapsed))
 
 	case StatusNotRegistered:
-		if err := notifyUnregistered(to.SenderID, to.To); err != nil {
+		if err := notifyUnregistered(to.SenderID, to.UserID); err != nil {
 			logger.Errorf("sender_hub: %v", err)
 		} else {
 			atomic.AddUint64(&sh.unregisteredCount, 1)
@@ -133,8 +133,8 @@ func (sh *SenderHub) send(to *To, notification *Notification) {
 	}
 }
 
-func notifyUnregistered(senderID, token string) error {
-	unregisteredURL := config.Server.UnregisteredCallback + "/" + senderID + "/" + token
+func notifyUnregistered(senderID, userID string) error {
+	unregisteredURL := config.Server.UnregisteredCallback + "/" + senderID + "/" + userID
 
 	req, err := http.NewRequest("GET", unregisteredURL, nil)
 	if err != nil {
