@@ -8,10 +8,10 @@
 package push
 
 const (
-	ApnsSenderID    = "apns"
-	GcmSenderID     = "gcm"
-	SafariSenderID  = "safari"
-	ChromeSenderID  = "chrome"
+	ApnsSenderID = "apns"
+	GcmSenderID = "gcm"
+	SafariSenderID = "safari"
+	ChromeSenderID = "chrome"
 	FirefoxSenderID = "firefox"
 )
 
@@ -39,7 +39,7 @@ type WebPushSub struct {
 
 type To struct {
 	SenderID string      `json:"sender_id"`
-	UserID   string		 `json:"user_id"`
+	UserID   string      `json:"user_id"`
 	To       string      `json:"to,omitempty"`
 	PushSub  *WebPushSub `json:"push_sub,omitempty"`
 	Sandbox  bool        `json:"sandbox,omitempty"`
