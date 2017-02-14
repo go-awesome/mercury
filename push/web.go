@@ -8,15 +8,15 @@
 package push
 
 import (
+	"fmt"
 	"time"
+	"errors"
+	"net/http"
+	"encoding/json"
+	"golang.org/x/net/http2"
 	"github.com/ortuman/mercury/config"
 	"github.com/ortuman/mercury/logger"
-	"net/http"
-	"golang.org/x/net/http2"
-	"encoding/json"
 	"github.com/ortuman/mercury/webpush"
-	"errors"
-	"fmt"
 )
 
 func NewChromeSenderPool() *SenderHub {
@@ -77,7 +77,7 @@ func (ws *WebPushSender) SendNotification(to *To, notification *Notification) (i
 	wp.SetVapid(subject, publicKey, privateKey)
 
 	start := time.Now().UnixNano()
-	resp, err := wp.Do(ws.client, sub, string(notificationJSON))
+	resp, err := wp.Do(ws.client, sub, string(notificationJSON), 86400)
 	end := time.Now().UnixNano()
 	reqElapsed := time.Duration((end - start)) / time.Millisecond
 

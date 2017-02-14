@@ -49,13 +49,13 @@ func (p *Push) SetVapid(subject, privateKey, publicKey string) {
 	p.currentVapid = &vapid{subject: subject, privateKey: privateKey, publicKey: publicKey}
 }
 
-func (p *Push) Do(client *http.Client, sub *Subscription, message string) (*http.Response, error) {
+func (p *Push) Do(client *http.Client, sub *Subscription, message string, ttl int) (*http.Response, error) {
 	req, err := http.NewRequest("POST", sub.Endpoint, nil)
 	if err != nil {
 		return nil, err
 	}
 
-	req.Header.Add("TTL", "604800")
+	req.Header.Add("TTL", fmt.Sprintf("%d", ttl))
 
 	var cryptoHeaderKey string
 
