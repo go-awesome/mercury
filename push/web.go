@@ -74,7 +74,7 @@ func (ws *WebPushSender) SendNotification(to *To, notification *Notification) (i
 		return StatusFailed, 0
 	}
 
-	wp.SetVAPID(subject, publicKey, privateKey)
+	wp.SetVapid(subject, publicKey, privateKey)
 
 	start := time.Now().UnixNano()
 	resp, err := wp.Do(ws.client, sub, string(notificationJSON))

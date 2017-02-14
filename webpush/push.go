@@ -45,7 +45,7 @@ func (p *Push) SetGcmApiKey(gcmApiKey string) {
 	p.currentGcmApiKey = gcmApiKey
 }
 
-func (p *Push) SetVAPID(subject, privateKey, publicKey string) {
+func (p *Push) SetVapid(subject, privateKey, publicKey string) {
 	p.currentVapid = &vapid{subject: subject, privateKey: privateKey, publicKey: publicKey}
 }
 
