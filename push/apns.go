@@ -25,8 +25,8 @@ import (
 const apnsSendEndpoint = "https://api.push.apple.com"
 const apnsSandboxSendEndpoint = "https://api.development.push.apple.com"
 
-func NewApnsSenderPool() *SenderHub {
-	s := NewSenderPool(ApnsSenderID, NewApnsPushSender, config.Apns.MaxConn)
+func NewApnsSenderHub() *SenderHub {
+	s := NewSenderHub(ApnsSenderID, NewApnsPushSender, config.Apns.MaxConn)
 	logger.Infof("apns: initialized apns sender (max conn: %d)", s.senderCount)
 	return s
 }
@@ -134,14 +134,14 @@ func (s *ApnsPushSender) SendNotification(to *To, notification *Notification) (i
 
 	var log string
 	if resp.StatusCode == http.StatusOK {
-		log = fmt.Sprintf("apns: notification delivered: %s (%d)", notification.ID, apnsReq.APS.Badge)
+		log = fmt.Sprintf("apns: [%s] notification delivered: %s (%d)", to.UserID, notification.ID, apnsReq.APS.Badge)
 		status = StatusDelivered
 	} else if resp.StatusCode == http.StatusGone {
-		log = fmt.Sprintf("apns: not registered: %s", to.To)
+		log = fmt.Sprintf("apns: [%s] not registered: %s", to.UserID, to.To)
 		status = StatusNotRegistered
 		reqElapsed = 0
 	} else {
-		log = fmt.Sprintf("apns: notification COULDN'T be delivered: %s (status: %v)", notification.ID, resp.StatusCode)
+		log = fmt.Sprintf("apns: [%s] notification COULDN'T be delivered: %s (status: %v)", to.UserID, notification.ID, resp.StatusCode)
 		status = StatusFailed
 		reqElapsed = 0
 	}

@@ -63,7 +63,7 @@ func init() {
 	unregisteredCallbackClient = &http.Client{Transport: transport}
 }
 
-func NewSenderPool(ID string, builder func() (PushSender, error), poolSize uint32) *SenderHub {
+func NewSenderHub(ID string, builder func() (PushSender, error), poolSize uint32) *SenderHub {
 	sh := &SenderHub{}
 
 	// assign pool identifier

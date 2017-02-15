@@ -19,14 +19,14 @@ import (
 	"github.com/ortuman/mercury/webpush"
 )
 
-func NewChromeSenderPool() *SenderHub {
-	s := NewSenderPool(ChromeSenderID, NewWebPushSender, config.Chrome.MaxConn)
+func NewChromeSenderHub() *SenderHub {
+	s := NewSenderHub(ChromeSenderID, NewWebPushSender, config.Chrome.MaxConn)
 	logger.Infof("web (%s): initialized chrome sender (max conn: %d)", ChromeSenderID, s.senderCount)
 	return s
 }
 
-func NewFirefoxSenderPool() *SenderHub {
-	s := NewSenderPool(FirefoxSenderID, NewWebPushSender, config.Firefox.MaxConn)
+func NewFirefoxSenderHub() *SenderHub {
+	s := NewSenderHub(FirefoxSenderID, NewWebPushSender, config.Firefox.MaxConn)
 	logger.Infof("web (%s): initialized firefox sender (max conn: %d)", FirefoxSenderID, s.senderCount)
 	return s
 }

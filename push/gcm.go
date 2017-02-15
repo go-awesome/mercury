@@ -22,8 +22,8 @@ const gcmSendEndpoint = "https://android.googleapis.com/gcm/send"
 
 const gcmNotRegisteredError = "NotRegistered"
 
-func NewGcmSenderPool() *SenderHub {
-	s := NewSenderPool(GcmSenderID, NewGcmPushSender, config.Gcm.MaxConn)
+func NewGcmSenderHub() *SenderHub {
+	s := NewSenderHub(GcmSenderID, NewGcmPushSender, config.Gcm.MaxConn)
 	logger.Infof("gcm: initialized gcm sender (max conn: %d)", s.senderCount)
 	return s
 }
@@ -94,13 +94,13 @@ func (s *GcmPushSender) SendNotification(to *To, notification *Notification) (in
 	if resp.StatusCode == http.StatusOK {
 		for _, result := range gcmResp.Results {
 			if len(result.Error) == 0 {
-				logger.Debugf("gcm: notification delivered: %s (%s)", notification.ID, to.To)
+				logger.Debugf("gcm: [%s] notification delivered: %s (%s)", to.UserID, notification.ID, to.To)
 				return StatusDelivered, reqElapsed
 			} else if len(result.Error) > 0 && result.Error == gcmNotRegisteredError {
-				logger.Debugf("gcm: not registered: %s", to.To)
+				logger.Debugf("gcm: [%s] not registered: %s", to.UserID, to.To)
 				return StatusNotRegistered, 0
 			} else {
-				logger.Errorf("gcm: notification couldn't be delivered: %s: %s: (%s)", notification.ID, result.Error, to.To)
+				logger.Errorf("gcm: [%s] notification couldn't be delivered: %s: %s: (%s)", to.UserID, notification.ID, result.Error, to.To)
 				return StatusFailed, 0
 			}
 		}
