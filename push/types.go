@@ -60,5 +60,6 @@ type Notification struct {
 	Category         string      `json:"category,omitempty"`
 	ContentAvailable bool        `json:"content_available,omitempty"`
 	MutableContent   bool        `json:"mutable_content,omitempty"`
+	URLArgs          []string    `json:"url_args,omitempty"`
 	Extra            interface{} `json:"extra,omitempty"`
 }

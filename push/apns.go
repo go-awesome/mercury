@@ -134,14 +134,14 @@ func (s *ApnsPushSender) SendNotification(to *To, notification *Notification) (i
 
 	var log string
 	if resp.StatusCode == http.StatusOK {
-		log = fmt.Sprintf("apns_sender: notification delivered: %s (%d)", notification.ID, apnsReq.APS.Badge)
+		log = fmt.Sprintf("apns: notification delivered: %s (%d)", notification.ID, apnsReq.APS.Badge)
 		status = StatusDelivered
 	} else if resp.StatusCode == http.StatusGone {
-		log = fmt.Sprintf("apns_sender: not registered: %s", to.To)
+		log = fmt.Sprintf("apns: not registered: %s", to.To)
 		status = StatusNotRegistered
 		reqElapsed = 0
 	} else {
-		log = fmt.Sprintf("apns_sender: notification COULDN'T be delivered: %s (status: %v)", notification.ID, resp.StatusCode)
+		log = fmt.Sprintf("apns: notification COULDN'T be delivered: %s (status: %v)", notification.ID, resp.StatusCode)
 		status = StatusFailed
 		reqElapsed = 0
 	}
@@ -149,7 +149,11 @@ func (s *ApnsPushSender) SendNotification(to *To, notification *Notification) (i
 	if to.Sandbox {
 		log += " [sandbox]"
 	}
-	logger.Debugf(log)
 
+	if status != StatusFailed {
+		logger.Debugf(log)
+	} else {
+		logger.Errorf(log)
+	}
 	return status, reqElapsed
 }
