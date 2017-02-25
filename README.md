@@ -1,5 +1,11 @@
 ![mercury](https://github.com/ortuman/mercury/blob/master/screenshots/logo.png)
 
+## Installation
+
+```bash
+go get -u github.com/ortuman/mercury
+```
+
 ## Support Platform
 
 * [APNS](https://developer.apple.com/library/content/documentation/NetworkingInternet/Conceptual/RemoteNotificationsPG/APNSOverview.html#//apple_ref/doc/uid/TP40008194-CH8-SW1)
