@@ -19,7 +19,7 @@ func main() {
 
 	var (
 		configFile string
-		help       bool
+		help bool
 	)
 
 	flag.StringVar(&configFile, "config", "/etc/mercury/mercury.conf", "configuration path file")
