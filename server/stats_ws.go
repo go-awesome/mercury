@@ -66,7 +66,6 @@ func NewStatsWS() *restful.WebService {
 	s := new(restful.WebService).Path("/v1/stats")
 
 	s.Route(s.GET("/push").To(getPushStats))
-	s.Route(s.GET("/go").To(getGoStats))
 	s.Route(s.GET("/sys").To(getSysStats))
 
 	return s
@@ -77,7 +76,7 @@ func getPushStats(_ *restful.Request, response *restful.Response) {
 	writeStats(globalSender.Stats(), response)
 }
 
-func getGoStats(_ *restful.Request, response *restful.Response) {
+func getSysStats(_ *restful.Request, response *restful.Response) {
 	logger.Infof("stats_ws: retrieving go stats...")
 
 	var mem runtime.MemStats
@@ -161,11 +160,6 @@ func getGoStats(_ *restful.Request, response *restful.Response) {
 	}
 
 	writeStats(stats, response)
-}
-
-func getSysStats(_ *restful.Request, response *restful.Response) {
-	logger.Infof("stats_ws: retrieving sys stats...")
-	response.WriteHeader(http.StatusOK)
 }
 
 func writeStats(stats interface{}, response *restful.Response) {
