@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package webpush provides helper functions for sending encrpyted payloads
+// Package webpush provides helper functions for sending encrypted payloads
 // using the Web Push protocol.
 //
 // Sending a message:

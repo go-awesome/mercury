@@ -8,13 +8,13 @@
 package push
 
 import (
-	"fmt"
 	"bytes"
-	"net/http"
 	"encoding/json"
-	"golang.org/x/net/http2"
+	"fmt"
 	"github.com/ortuman/mercury/config"
 	"github.com/ortuman/mercury/logger"
+	"golang.org/x/net/http2"
+	"net/http"
 	"time"
 )
 

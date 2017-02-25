@@ -8,16 +8,16 @@
 package push
 
 import (
-	"hash/fnv"
-	"fmt"
-	"log"
-	"time"
 	"errors"
-	"sync/atomic"
-	"net/http"
-	"golang.org/x/net/http2"
+	"fmt"
 	"github.com/ortuman/mercury/config"
 	"github.com/ortuman/mercury/logger"
+	"golang.org/x/net/http2"
+	"hash/fnv"
+	"log"
+	"net/http"
+	"sync/atomic"
+	"time"
 )
 
 // MARK: PushSender
@@ -34,11 +34,11 @@ type PushSender interface {
 }
 
 type PushStats struct {
-	MaxConn           uint32    `json:"max_conn"`
-	DeliveredCount    uint64    `json:"delivered_count"`
-	UnregisteredCount uint64    `json:"unregistered_count"`
-	FailedCount       uint64    `json:"failed_count"`
-	AvgRequestTime    uint64    `json:"avg_request_time_msec"`
+	MaxConn           uint32 `json:"max_conn"`
+	DeliveredCount    uint64 `json:"delivered_count"`
+	UnregisteredCount uint64 `json:"unregistered_count"`
+	FailedCount       uint64 `json:"failed_count"`
+	AvgRequestTime    uint64 `json:"avg_request_time_msec"`
 }
 
 // MARK: SenderHub
@@ -111,7 +111,7 @@ func (sh *SenderHub) send(to *To, notification *Notification) {
 	h := fnv.New32a()
 	h.Write([]byte(to.UserID))
 
-	status, reqElapsed := sh.senderPool[h.Sum32() % sh.senderCount].SendNotification(to, notification)
+	status, reqElapsed := sh.senderPool[h.Sum32()%sh.senderCount].SendNotification(to, notification)
 
 	switch status {
 	case StatusDelivered:

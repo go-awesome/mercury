@@ -8,17 +8,17 @@
 package push
 
 import (
-	"fmt"
-	"time"
-	"errors"
-	"strings"
-	"net/http"
-	"encoding/json"
 	"encoding/base64"
-	"golang.org/x/net/http2"
+	"encoding/json"
+	"errors"
+	"fmt"
 	"github.com/ortuman/mercury/config"
 	"github.com/ortuman/mercury/logger"
 	"github.com/ortuman/mercury/webpush"
+	"golang.org/x/net/http2"
+	"net/http"
+	"strings"
+	"time"
 )
 
 func NewChromeSenderHub() *SenderHub {

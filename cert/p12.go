@@ -8,8 +8,8 @@ import (
 	"crypto/x509"
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"golang.org/x/crypto/pkcs12"
+	"io/ioutil"
 )
 
 // Certificate errors

@@ -8,11 +8,11 @@
 package push
 
 import (
-	"time"
-	"github.com/timehop/apns"
-	"github.com/ortuman/mercury/logger"
-	"github.com/ortuman/mercury/config"
 	"github.com/ortuman/mercury/cert"
+	"github.com/ortuman/mercury/config"
+	"github.com/ortuman/mercury/logger"
+	"github.com/timehop/apns"
+	"time"
 )
 
 func NewSafariSenderHub() *SenderHub {

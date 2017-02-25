@@ -8,10 +8,10 @@
 package push
 
 const (
-	ApnsSenderID = "apns"
-	GcmSenderID = "gcm"
-	SafariSenderID = "safari"
-	ChromeSenderID = "chrome"
+	ApnsSenderID    = "apns"
+	GcmSenderID     = "gcm"
+	SafariSenderID  = "safari"
+	ChromeSenderID  = "chrome"
 	FirefoxSenderID = "firefox"
 )
 

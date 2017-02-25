@@ -8,18 +8,18 @@
 package push
 
 import (
-	"fmt"
-	"time"
 	"bytes"
-	"strconv"
-	"net/http"
 	"crypto/tls"
 	"encoding/json"
-	"golang.org/x/net/http2"
-	"github.com/ortuman/mercury/logger"
-	"github.com/ortuman/mercury/config"
+	"fmt"
 	"github.com/ortuman/mercury/cert"
+	"github.com/ortuman/mercury/config"
+	"github.com/ortuman/mercury/logger"
 	"github.com/ortuman/mercury/storage"
+	"golang.org/x/net/http2"
+	"net/http"
+	"strconv"
+	"time"
 )
 
 const apnsSendEndpoint = "https://api.push.apple.com"
