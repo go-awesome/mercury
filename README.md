@@ -1,5 +1,9 @@
 # mercury
 
+### GET /ping
+
+Checks if the server is alive. This is useful for monitoring tools, load-balancers and automated scripts.
+
 ### GET /v1/stats/push
 
 Show push notification stats.
