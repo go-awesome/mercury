@@ -1,5 +1,5 @@
 //
-//  config.go
+//  config/config.go
 //  mercury
 //
 //  Copyright (c) 2017 Miguel Ángel Ortuño. All rights reserved.

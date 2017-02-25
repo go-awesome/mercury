@@ -1,5 +1,5 @@
 //
-//  badges_ws.go
+//  server/badges_ws.go
 //  mercury
 //
 //  Copyright (c) 2017 Miguel Ángel Ortuño. All rights reserved.

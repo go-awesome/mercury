@@ -1,5 +1,5 @@
 //
-//  gcm.go
+//  push/web.go
 //  mercury
 //
 //  Copyright (c) 2017 Miguel Ángel Ortuño. All rights reserved.
@@ -11,8 +11,10 @@ import (
 	"fmt"
 	"time"
 	"errors"
+	"strings"
 	"net/http"
 	"encoding/json"
+	"encoding/base64"
 	"golang.org/x/net/http2"
 	"github.com/ortuman/mercury/config"
 	"github.com/ortuman/mercury/logger"
@@ -48,17 +50,20 @@ func NewWebPushSender() (PushSender, error) {
 }
 
 func (ws *WebPushSender) SendNotification(to *To, notification *Notification) (int, time.Duration) {
-	b, err := json.Marshal(to.PushSub)
+	b64 := base64.URLEncoding.WithPadding(base64.NoPadding)
+
+	key, err := b64.DecodeString(strings.TrimRight(to.PushSub.Keys.P256dh, "="))
+	if err != nil {
+		logger.Errorf("web (%s): %v", to.SenderID, err)
+		return StatusFailed, 0
+	}
+	auth, err := b64.DecodeString(strings.TrimRight(to.PushSub.Keys.Auth, "="))
 	if err != nil {
 		logger.Errorf("web (%s): %v", to.SenderID, err)
 		return StatusFailed, 0
 	}
 
-	sub, err := webpush.SubscriptionFromJSON([]byte(b))
-	if err != nil {
-		logger.Errorf("web (%s): %v", to.SenderID, err)
-		return StatusFailed, 0
-	}
+	sub := &webpush.Subscription{Endpoint: to.PushSub.Endpoint, Key: key, Auth: auth}
 
 	notificationJSON, err := json.Marshal(notification)
 	if err != nil {

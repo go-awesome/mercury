@@ -1,5 +1,5 @@
 //
-//  sender_hub.go
+//  push/sender_hub.go
 //  mercury
 //
 //  Copyright (c) 2017 Miguel Ángel Ortuño. All rights reserved.

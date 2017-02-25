@@ -1,5 +1,5 @@
 //
-//  apns_types.go
+//  push/apns_types.go
 //  mercury
 //
 //  Copyright (c) 2017 Miguel Ángel Ortuño. All rights reserved.
