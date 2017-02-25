@@ -22,7 +22,7 @@ func main() {
 		help       bool
 	)
 
-	flag.StringVar(&configFile, "config-file", "/etc/mercury/mercury.conf", "configuration path file")
+	flag.StringVar(&configFile, "config", "/etc/mercury/mercury.conf", "configuration path file")
 	flag.BoolVar(&help, "help", false, "show application usage")
 	flag.Parse()
 
