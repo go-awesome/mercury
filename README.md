@@ -71,9 +71,9 @@ Show system stats.
     "heap_inuse": 2351104,
     "heap_released": 0,
     "heap_objects": 12490,
-    "gc_next: 4194304,
-    "gc_last": 0,
-    "gc_num": 0,
+    "gc_next": 4194304,
+    "gc_last": 1460686815762559700,
+    "gc_num": 1,
     "gc_per_second": 0,
     "gc_pause_per_second": 0,
     "gc_pause": [ 0.395676 ]
