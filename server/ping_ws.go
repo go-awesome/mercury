@@ -14,10 +14,9 @@ import (
 )
 
 func NewPingWS() *restful.WebService {
-	s := new(restful.WebService)
-	s.Path("/ping")
-	s.Route(s.GET("/*").To(ping))
-	return s
+	ws := new(restful.WebService).Path("/ping")
+	ws.Route(ws.GET("").To(ping))
+	return ws
 }
 
 // Checks if the server is alive. This is useful for monitoring tools, load-balancers and automated scripts.
