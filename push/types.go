@@ -38,11 +38,12 @@ type WebPushSub struct {
 }
 
 type To struct {
-	SenderID string      `json:"sender_id"`
-	UserID   string      `json:"user_id"`
-	To       string      `json:"to,omitempty"`
-	PushSub  *WebPushSub `json:"push_sub,omitempty"`
-	Sandbox  bool        `json:"sandbox,omitempty"`
+	SenderID       string      `json:"sender_id"`
+	UserID         string      `json:"user_id"`
+	DeviceToken    string      `json:"device_token,omitempty"`
+	RegistrationID string      `json:"registration_id,omitempty"`
+	PushSub        *WebPushSub `json:"push_sub,omitempty"`
+	Sandbox        bool        `json:"sandbox,omitempty"`
 }
 
 type Push struct {
@@ -57,7 +58,7 @@ type Notification struct {
 	Sound            string      `json:"sound,omitempty"`
 	Icon             string      `json:"icon,omitempty"`
 	Color            string      `json:"color,omitempty"`
-	Action			 string		 `json:"action,omitempty"`
+	Action           string      `json:"action,omitempty"`
 	URLArgs          []string    `json:"url_args,omitempty"`
 	Category         string      `json:"category,omitempty"`
 	ContentAvailable bool        `json:"content_available,omitempty"`

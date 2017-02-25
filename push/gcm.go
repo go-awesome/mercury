@@ -54,7 +54,7 @@ func (s *GcmPushSender) SendNotification(to *To, notification *Notification) (in
 	gcmNotification.Color = notification.Color
 
 	gcmReq := &GcmRequest{}
-	gcmReq.RegistrationIDs = []string{to.To}
+	gcmReq.RegistrationIDs = []string{to.RegistrationID}
 	gcmReq.Notification = gcmNotification
 	gcmReq.Data = notification
 	gcmReq.TimeToLive = 86400
@@ -94,13 +94,13 @@ func (s *GcmPushSender) SendNotification(to *To, notification *Notification) (in
 	if resp.StatusCode == http.StatusOK {
 		for _, result := range gcmResp.Results {
 			if len(result.Error) == 0 {
-				logger.Debugf("gcm: [%s] notification delivered: %s (%s)", to.UserID, notification.ID, to.To)
+				logger.Debugf("gcm: [%s] notification delivered: %s (%s)", to.UserID, notification.ID, to.RegistrationID)
 				return StatusDelivered, reqElapsed
 			} else if len(result.Error) > 0 && result.Error == gcmNotRegisteredError {
-				logger.Debugf("gcm: [%s] not registered: %s", to.UserID, to.To)
+				logger.Debugf("gcm: [%s] not registered: %s", to.UserID, to.RegistrationID)
 				return StatusNotRegistered, 0
 			} else {
-				logger.Errorf("gcm: [%s] notification couldn't be delivered: %s: %s: (%s)", to.UserID, notification.ID, result.Error, to.To)
+				logger.Errorf("gcm: [%s] notification couldn't be delivered: %s: %s: (%s)", to.UserID, notification.ID, result.Error, to.RegistrationID)
 				return StatusFailed, 0
 			}
 		}

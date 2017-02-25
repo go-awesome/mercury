@@ -53,7 +53,7 @@ func (ss *SafariPushSender) SendNotification(to *To, notification *Notification)
 
 	m := apns.NewNotification()
 	m.ID = notification.ID
-	m.DeviceToken = to.To
+	m.DeviceToken = to.DeviceToken
 	m.Priority = apns.PriorityImmediate
 	m.Expiration = &expiration
 	m.Payload = p

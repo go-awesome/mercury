@@ -83,7 +83,7 @@ func (s *ApnsPushSender) SendNotification(to *To, notification *Notification) (i
 	apnsReq.APS.Alert.Body = notification.Body
 	apnsReq.APS.Alert.Title = notification.Title
 
-	badge, _ := storage.Instance().GetBadge(to.SenderID, to.To)
+	badge, _ := storage.Instance().GetBadge(to.SenderID, to.DeviceToken)
 	apnsReq.APS.Badge = uint(badge)
 
 	apnsReq.APS.Sound = notification.Sound
@@ -137,7 +137,7 @@ func (s *ApnsPushSender) SendNotification(to *To, notification *Notification) (i
 		log = fmt.Sprintf("apns: [%s] notification delivered: %s (%d)", to.UserID, notification.ID, apnsReq.APS.Badge)
 		status = StatusDelivered
 	} else if resp.StatusCode == http.StatusGone {
-		log = fmt.Sprintf("apns: [%s] not registered: %s", to.UserID, to.To)
+		log = fmt.Sprintf("apns: [%s] not registered: %s", to.UserID, to.DeviceToken)
 		status = StatusNotRegistered
 		reqElapsed = 0
 	} else {
