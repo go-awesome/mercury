@@ -66,10 +66,10 @@ func init() {
 func NewSenderHub(ID string, builder func() (PushSender, error), poolSize uint32) *SenderHub {
 	sh := &SenderHub{}
 
-	// assign pool identifier
+	// assign hub identifier
 	sh.ID = ID
 
-	// initialize sender pool
+	// initialize sender hub
 	sh.senderCount = poolSize
 	sh.senderPool = make([]PushSender, 0, poolSize)
 
