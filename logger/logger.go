@@ -9,27 +9,30 @@ package logger
 
 import (
 	"fmt"
+	"github.com/ivpusic/golog"
 	"os"
 	"sync"
-	"github.com/ivpusic/golog"
-    "sync/atomic"
+	"sync/atomic"
 )
 
 const loggerName = "github.com/ortuman/mercury"
 
 const debugLevel = 0
-const infoLevel  = 1
-const warnLevel  = 2
+const infoLevel = 1
+const warnLevel = 2
 const errorLevel = 3
 
 type logger struct {
-	logger  *golog.Logger
-	level   int32
-	log     chan struct{msg string; level int}
+	logger *golog.Logger
+	level  int32
+	log    chan struct {
+		msg   string
+		level int
+	}
 }
 
 type logAppender struct {
-	file *os.File
+	file         *os.File
 	bytesWritten int
 }
 
@@ -44,68 +47,83 @@ func loggerInstance() *logger {
 	once.Do(func() {
 		instance = new(logger)
 		instance.logger = golog.GetLogger(loggerName)
-        instance.level = debugLevel
-		instance.log = make(chan struct{msg string; level int}, logQueueSize)
+		instance.level = debugLevel
+		instance.log = make(chan struct {
+			msg   string
+			level int
+		}, logQueueSize)
 		go instance.run()
 	})
 	return instance
 }
 
 func SetLogLevel(logLevel string) {
-    l := loggerInstance()
+	l := loggerInstance()
 	switch logLevel {
 	case "DEBUG":
-        atomic.StoreInt32(&l.level, debugLevel)
+		atomic.StoreInt32(&l.level, debugLevel)
 		loggerInstance().logger.Level = golog.DEBUG
 	case "INFO":
-        atomic.StoreInt32(&l.level, infoLevel)
-        loggerInstance().logger.Level = golog.INFO
+		atomic.StoreInt32(&l.level, infoLevel)
+		loggerInstance().logger.Level = golog.INFO
 	case "WARN":
-        atomic.StoreInt32(&l.level, warnLevel)
-        loggerInstance().logger.Level = golog.WARN
+		atomic.StoreInt32(&l.level, warnLevel)
+		loggerInstance().logger.Level = golog.WARN
 	case "ERROR":
-        atomic.StoreInt32(&l.level, errorLevel)
-        loggerInstance().logger.Level = golog.ERROR
+		atomic.StoreInt32(&l.level, errorLevel)
+		loggerInstance().logger.Level = golog.ERROR
 	}
 }
 
 func SetLogFilePath(logPath string) {
-    loggerInstance().logger.Enable(newMercuryLogger(golog.Conf{
+	loggerInstance().logger.Enable(newMercuryLogger(golog.Conf{
 		// file in which logs will be saved
 		"path": logPath,
 	}))
 }
 
 func Debugf(msg string, params ...interface{}) {
-    l := loggerInstance()
-    if atomic.LoadInt32(&l.level) <= debugLevel {
-        s := fmt.Sprintf(msg, params...)
-        l.log <- struct{ msg string; level int }{msg: s, level: debugLevel}
-    }
+	l := loggerInstance()
+	if atomic.LoadInt32(&l.level) <= debugLevel {
+		s := fmt.Sprintf(msg, params...)
+		l.log <- struct {
+			msg   string
+			level int
+		}{msg: s, level: debugLevel}
+	}
 }
 
 func Infof(msg string, params ...interface{}) {
-    l := loggerInstance()
-    if atomic.LoadInt32(&l.level) <= infoLevel {
-        s := fmt.Sprintf(msg, params...)
-        l.log <- struct{ msg string; level int }{msg: s, level: infoLevel}
-    }
+	l := loggerInstance()
+	if atomic.LoadInt32(&l.level) <= infoLevel {
+		s := fmt.Sprintf(msg, params...)
+		l.log <- struct {
+			msg   string
+			level int
+		}{msg: s, level: infoLevel}
+	}
 }
 
 func Warnf(msg string, params ...interface{}) {
-    l := loggerInstance()
-    if atomic.LoadInt32(&l.level) <= warnLevel {
-        s := fmt.Sprintf(msg, params...)
-        l.log <- struct{ msg string; level int }{msg: s, level: warnLevel}
-    }
+	l := loggerInstance()
+	if atomic.LoadInt32(&l.level) <= warnLevel {
+		s := fmt.Sprintf(msg, params...)
+		l.log <- struct {
+			msg   string
+			level int
+		}{msg: s, level: warnLevel}
+	}
 }
 
 func Errorf(msg string, params ...interface{}) {
-    l := loggerInstance()
-    if atomic.LoadInt32(&l.level) <= errorLevel {
-        s := fmt.Sprintf(msg, params...)
-        l.log <- struct{ msg string; level int }{msg: s, level: errorLevel}
-    }
+	l := loggerInstance()
+	if atomic.LoadInt32(&l.level) <= errorLevel {
+		s := fmt.Sprintf(msg, params...)
+		l.log <- struct {
+			msg   string
+			level int
+		}{msg: s, level: errorLevel}
+	}
 }
 
 func (l *logger) run() {
