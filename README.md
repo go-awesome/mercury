@@ -1,5 +1,15 @@
 # mercury
 
+## Support Platform
+
+* [APNS](https://developer.apple.com/library/content/documentation/NetworkingInternet/Conceptual/RemoteNotificationsPG/APNSOverview.html#//apple_ref/doc/uid/TP40008194-CH8-SW1)
+* [GCM](https://developer.android.com/google/gcm/index.html)
+* [Safari](https://developer.apple.com/library/prerelease/content/documentation/NetworkingInternet/Conceptual/NotificationProgrammingGuideForWebsites/PushNotifications/PushNotifications.html)
+* [Chrome](https://developers.google.com/web/fundamentals/getting-started/codelabs/push-notifications/)
+* [Firefox](https://support.mozilla.org/t5/Basic-Browsing/Web-Push-notifications-in-Firefox/ta-p/28744)
+
+## Web API
+
 ### GET /ping
 
 Checks if the server is alive. This is useful for monitoring tools, load-balancers and automated scripts.
