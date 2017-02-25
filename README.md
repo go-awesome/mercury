@@ -1,4 +1,4 @@
-# mercury
+![mercury](https://github.com/ortuman/mercury/blob/master/screenshots/logo.png)
 
 ## Support Platform
 
