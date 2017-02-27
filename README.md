@@ -49,8 +49,8 @@ Show push notification stats.
   },
   "gcm": {
     "max_conn": 16,
-    "delivered_count": 0,
-    "unregistered_count": 0,
+    "delivered_count": 162345,
+    "unregistered_count": 8734,
     "failed_count": 3,
     "avg_request_time_msec": 12
   },
