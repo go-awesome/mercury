@@ -8,17 +8,17 @@
 package server
 
 import (
-	"github.com/emicklei/go-restful"
+    "github.com/emicklei/go-restful"
 )
 
 var globalSender *pushSender
 
 func NewPushWS() *restful.WebService {
-	globalSender = newPushSender()
+    globalSender = newPushSender()
 
-	ws := new(restful.WebService).Path("/v1/push").Consumes(restful.MIME_JSON)
+    ws := new(restful.WebService).Path("/v1/push").Consumes(restful.MIME_JSON)
 
-	ws.Route(ws.POST("").To(globalSender.push))
+    ws.Route(ws.POST("").To(globalSender.push))
 
-	return ws
+    return ws
 }
