@@ -1,3 +1,5 @@
+[![Go Report Card](https://goreportcard.com/badge/github.com/ortuman/mercury)](https://goreportcard.com/report/github.com/ortuman/mercury)
+
 ![mercury](https://github.com/ortuman/mercury/blob/master/screenshots/logo.png)
 
 ## Installation
