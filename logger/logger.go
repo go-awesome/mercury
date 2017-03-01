@@ -25,7 +25,10 @@ const errorLevel = 3
 type logger struct {
 	logger *golog.Logger
 	level  int32
-	log    chan struct {
+
+	logPath  chan string
+	logLevel chan string
+	log      chan struct {
 		msg   string
 		level int
 	}
@@ -48,6 +51,8 @@ func loggerInstance() *logger {
 		instance = new(logger)
 		instance.logger = golog.GetLogger(loggerName)
 		instance.level = debugLevel
+		instance.logLevel = make(chan string)
+		instance.logPath = make(chan string)
 		instance.log = make(chan struct {
 			msg   string
 			level int
@@ -58,28 +63,11 @@ func loggerInstance() *logger {
 }
 
 func SetLogLevel(logLevel string) {
-	l := loggerInstance()
-	switch logLevel {
-	case "DEBUG":
-		atomic.StoreInt32(&l.level, debugLevel)
-		loggerInstance().logger.Level = golog.DEBUG
-	case "INFO":
-		atomic.StoreInt32(&l.level, infoLevel)
-		loggerInstance().logger.Level = golog.INFO
-	case "WARN":
-		atomic.StoreInt32(&l.level, warnLevel)
-		loggerInstance().logger.Level = golog.WARN
-	case "ERROR":
-		atomic.StoreInt32(&l.level, errorLevel)
-		loggerInstance().logger.Level = golog.ERROR
-	}
+	loggerInstance().logLevel <- logLevel
 }
 
 func SetLogFilePath(logPath string) {
-	loggerInstance().logger.Enable(newMercuryLogger(golog.Conf{
-		// file in which logs will be saved
-		"path": logPath,
-	}))
+	loggerInstance().logPath <- logPath
 }
 
 func Debugf(msg string, params ...interface{}) {
@@ -127,16 +115,39 @@ func Errorf(msg string, params ...interface{}) {
 }
 
 func (l *logger) run() {
-	for log := range l.log {
-		switch log.level {
-		case debugLevel:
-			l.logger.Debug(log.msg)
-		case infoLevel:
-			l.logger.Info(log.msg)
-		case warnLevel:
-			l.logger.Warn(log.msg)
-		case errorLevel:
-			l.logger.Error(log.msg)
+	for {
+		select {
+		case logLevel := <- l.logLevel:
+			switch logLevel {
+			case "DEBUG":
+				l.level = debugLevel
+				l.logger.Level = golog.DEBUG
+			case "INFO":
+				l.level = infoLevel
+				l.logger.Level = golog.INFO
+			case "WARN":
+				l.level = warnLevel
+				l.logger.Level = golog.WARN
+			case "ERROR":
+				l.level = errorLevel
+				l.logger.Level = golog.ERROR
+			}
+
+		// file in which logs will be saved
+		case logPath := <- l.logPath:
+			l.logger.Enable(newMercuryLogger(golog.Conf{"path": logPath}))
+
+		case log := <- l.log:
+			switch log.level {
+			case debugLevel:
+				l.logger.Debug(log.msg)
+			case infoLevel:
+				l.logger.Info(log.msg)
+			case warnLevel:
+				l.logger.Warn(log.msg)
+			case errorLevel:
+				l.logger.Error(log.msg)
+			}
 		}
 	}
 }
