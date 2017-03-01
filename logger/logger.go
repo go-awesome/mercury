@@ -117,7 +117,7 @@ func Errorf(msg string, params ...interface{}) {
 func (l *logger) run() {
 	for {
 		select {
-		case logLevel := <- l.logLevel:
+		case logLevel := <-l.logLevel:
 			switch logLevel {
 			case "DEBUG":
 				l.level = debugLevel
@@ -134,10 +134,10 @@ func (l *logger) run() {
 			}
 
 		// file in which logs will be saved
-		case logPath := <- l.logPath:
+		case logPath := <-l.logPath:
 			l.logger.Enable(newMercuryLogger(golog.Conf{"path": logPath}))
 
-		case log := <- l.log:
+		case log := <-l.log:
 			switch log.level {
 			case debugLevel:
 				l.logger.Debug(log.msg)
