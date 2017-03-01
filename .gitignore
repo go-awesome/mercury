@@ -37,7 +37,12 @@
 ehthumbs.db
 Thumbs.db
 
-# Project files #
-#################
+# IntelliJ #
+############
 *.iml
+
+# Configuration #
+#################
+mercury.conf
+
 
