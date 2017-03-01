@@ -1,3 +1,7 @@
+[![Go Report Card](https://goreportcard.com/badge/github.com/ortuman/mercury)](https://goreportcard.com/report/github.com/ortuman/mercury)
+[![codebeat badge](https://codebeat.co/badges/b48af494-0ac8-4304-bea5-a58d6fb63f75)](https://codebeat.co/projects/github-com-ortuman-mercury-master)
+[![License](https://img.shields.io/badge/license-MIT-orange.svg)](https://github.com/ortuman/mercury/blob/master/LICENSE)
+
 ![mercury](https://github.com/ortuman/mercury/blob/master/screenshots/logo.png)
 
 ## Installation
