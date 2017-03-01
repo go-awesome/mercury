@@ -8,18 +8,18 @@
 package main
 
 import (
-	"os"
-	"fmt"
 	"flag"
-	"github.com/ortuman/mercury/server"
+	"fmt"
 	"github.com/ortuman/mercury/config"
+	"github.com/ortuman/mercury/server"
+	"os"
 )
 
 func main() {
 
 	var (
 		configFile string
-		help bool
+		help       bool
 	)
 
 	flag.StringVar(&configFile, "config", "/etc/mercury/mercury.conf", "configuration path file")

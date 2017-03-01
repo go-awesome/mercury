@@ -15,139 +15,139 @@
 package webpush
 
 import (
-    "fmt"
-    "bytes"
-    "io/ioutil"
-    "net/http"
-    "strings"
-    "errors"
-    "net/url"
-    "encoding/base64"
+	"bytes"
+	"encoding/base64"
+	"errors"
+	"fmt"
+	"io/ioutil"
+	"net/http"
+	"net/url"
+	"strings"
 )
 
-const publicKeyLength = 65;
+const publicKeyLength = 65
 
-const privateKeyLength = 32;
+const privateKeyLength = 32
 
 const gcmEndpoint = "https://android.googleapis.com/gcm/send"
 
 type vapid struct {
-    subject    string
-    privateKey string
-    publicKey  string
+	subject    string
+	privateKey string
+	publicKey  string
 }
 
 type Push struct {
-    currentGcmApiKey string
-    currentVapid     *vapid
+	currentGcmApiKey string
+	currentVapid     *vapid
 }
 
 func (p *Push) SetGcmApiKey(gcmApiKey string) {
-    p.currentGcmApiKey = gcmApiKey
+	p.currentGcmApiKey = gcmApiKey
 }
 
 func (p *Push) SetVapid(subject, privateKey, publicKey string) {
-    p.currentVapid = &vapid{subject: subject, privateKey: privateKey, publicKey: publicKey}
+	p.currentVapid = &vapid{subject: subject, privateKey: privateKey, publicKey: publicKey}
 }
 
 func (p *Push) Do(client *http.Client, sub *Subscription, message string, ttl int) (*http.Response, error) {
-    req, err := http.NewRequest("POST", sub.Endpoint, nil)
-    if err != nil {
-        return nil, err
-    }
+	req, err := http.NewRequest("POST", sub.Endpoint, nil)
+	if err != nil {
+		return nil, err
+	}
 
-    req.Header.Add("TTL", fmt.Sprintf("%d", ttl))
+	req.Header.Add("TTL", fmt.Sprintf("%d", ttl))
 
-    var cryptoHeaderKey string
+	var cryptoHeaderKey string
 
-    if message != "" {
-        payload, err := Encrypt(sub, message)
-        if err != nil {
-            return nil, err
-        }
+	if message != "" {
+		payload, err := Encrypt(sub, message)
+		if err != nil {
+			return nil, err
+		}
 
-        req.Body = ioutil.NopCloser(bytes.NewReader(payload.Ciphertext))
-        req.ContentLength = int64(len(payload.Ciphertext))
-        req.Header.Add("Encryption", headerField("salt", payload.Salt))
-        req.Header.Add("Content-Encoding", "aesgcm")
+		req.Body = ioutil.NopCloser(bytes.NewReader(payload.Ciphertext))
+		req.ContentLength = int64(len(payload.Ciphertext))
+		req.Header.Add("Encryption", headerField("salt", payload.Salt))
+		req.Header.Add("Content-Encoding", "aesgcm")
 
-        cryptoHeaderKey = headerField("dh", payload.ServerPublicKey)
-    }
+		cryptoHeaderKey = headerField("dh", payload.ServerPublicKey)
+	}
 
-    isGcm := strings.HasPrefix(sub.Endpoint, gcmEndpoint)
-    if isGcm {
-        if p.currentGcmApiKey == "" {
-            return nil, errors.New("The GCM API Key should be a non-empty string")
-        }
-        req.Header.Add("Authorization", fmt.Sprintf(`key=%s`, p.currentGcmApiKey))
+	isGcm := strings.HasPrefix(sub.Endpoint, gcmEndpoint)
+	if isGcm {
+		if p.currentGcmApiKey == "" {
+			return nil, errors.New("The GCM API Key should be a non-empty string")
+		}
+		req.Header.Add("Authorization", fmt.Sprintf(`key=%s`, p.currentGcmApiKey))
 
-    } else if p.currentVapid != nil {
+	} else if p.currentVapid != nil {
 
-        subEndpointURL, err := url.Parse(sub.Endpoint)
-        if err != nil {
-            return nil, err
-        }
+		subEndpointURL, err := url.Parse(sub.Endpoint)
+		if err != nil {
+			return nil, err
+		}
 
-        audience := subEndpointURL.Scheme + "://" + subEndpointURL.Host
+		audience := subEndpointURL.Scheme + "://" + subEndpointURL.Host
 
-        auth, criptoKey, err := getVapidHeaders(audience, p.currentVapid.subject, p.currentVapid.privateKey, p.currentVapid.publicKey)
-        if err != nil {
-            return nil, err
-        }
+		auth, criptoKey, err := getVapidHeaders(audience, p.currentVapid.subject, p.currentVapid.privateKey, p.currentVapid.publicKey)
+		if err != nil {
+			return nil, err
+		}
 
-        req.Header.Add("Authorization", auth)
+		req.Header.Add("Authorization", auth)
 
-        if cryptoHeaderKey != "" {
-            cryptoHeaderKey = cryptoHeaderKey + ";" + criptoKey
-        } else {
-            cryptoHeaderKey = criptoKey
-        }
-    }
-    req.Header.Add("Crypto-Key", cryptoHeaderKey)
+		if cryptoHeaderKey != "" {
+			cryptoHeaderKey = cryptoHeaderKey + ";" + criptoKey
+		} else {
+			cryptoHeaderKey = criptoKey
+		}
+	}
+	req.Header.Add("Crypto-Key", cryptoHeaderKey)
 
-    return client.Do(req)
+	return client.Do(req)
 }
 
 func getVapidHeaders(audience string, subject string, privateKey string, publicKey string) (string, string, error) {
 
-    if subject == "" {
-        return "", "", errors.New("vapid: you must provide a subject that is either a mailto: or a URL")
-    }
+	if subject == "" {
+		return "", "", errors.New("vapid: you must provide a subject that is either a mailto: or a URL")
+	}
 
-    b64 := base64.URLEncoding.WithPadding(base64.NoPadding)
+	b64 := base64.URLEncoding.WithPadding(base64.NoPadding)
 
-    privateKeyBytes, err := b64.DecodeString(privateKey)
-    if err != nil {
-        return "", "", err
-    }
+	privateKeyBytes, err := b64.DecodeString(privateKey)
+	if err != nil {
+		return "", "", err
+	}
 
-    publicKeyBytes, err := b64.DecodeString(publicKey)
-    if err != nil {
-        return "", "", err
-    }
+	publicKeyBytes, err := b64.DecodeString(publicKey)
+	if err != nil {
+		return "", "", err
+	}
 
-    if len(privateKeyBytes) != privateKeyLength {
-        return "", "", errors.New("push: private key should be 32 bytes long when decoded")
-    }
-    if len(publicKeyBytes) != publicKeyLength {
-        return "", "", errors.New("push: public key should be 65 bytes long when decoded")
-    }
+	if len(privateKeyBytes) != privateKeyLength {
+		return "", "", errors.New("push: private key should be 32 bytes long when decoded")
+	}
+	if len(publicKeyBytes) != publicKeyLength {
+		return "", "", errors.New("push: public key should be 65 bytes long when decoded")
+	}
 
-    vapid := NewVapid(privateKeyBytes)
-    vapid.Sub = subject
+	vapid := NewVapid(privateKeyBytes)
+	vapid.Sub = subject
 
-    token, err := vapid.Token(audience)
-    if err != nil {
-        return "", "", err
-    }
+	token, err := vapid.Token(audience)
+	if err != nil {
+		return "", "", err
+	}
 
-    auth := "WebPush " + token
-    cryptoKey := "p256ecdsa=" + publicKey
+	auth := "WebPush " + token
+	cryptoKey := "p256ecdsa=" + publicKey
 
-    return auth, cryptoKey, nil
+	return auth, cryptoKey, nil
 }
 
 // A helper for creating the value part of the HTTP encryption headers
 func headerField(headerType string, value []byte) string {
-    return fmt.Sprintf(`%s=%s`, headerType, strings.TrimRight(base64.URLEncoding.EncodeToString(value), "="))
+	return fmt.Sprintf(`%s=%s`, headerType, strings.TrimRight(base64.URLEncoding.EncodeToString(value), "="))
 }

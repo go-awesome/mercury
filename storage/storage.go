@@ -8,24 +8,24 @@
 package storage
 
 import (
-    "sync"
+	"sync"
 )
 
 type storage interface {
-    IncreaseBadge(senderID, token string) error
-    GetBadge(senderID, token string) (uint64, error)
-    ClearBadge(senderID, token string) error
+	IncreaseBadge(senderID, token string) error
+	GetBadge(senderID, token string) (uint64, error)
+	ClearBadge(senderID, token string) error
 }
 
 // singleton interface
 var (
-    instance storage
-    once sync.Once
+	instance storage
+	once     sync.Once
 )
 
 func Instance() storage {
-    once.Do(func() {
-        instance = NewRedis()
-    })
-    return instance
+	once.Do(func() {
+		instance = NewRedis()
+	})
+	return instance
 }
