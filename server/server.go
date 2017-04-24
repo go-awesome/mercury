@@ -80,11 +80,10 @@ func (s *Server) createPIDFile() error {
 }
 
 func (s *Server) configureServices() {
-	// configure services
-	restful.Add(NewPingWS())   // /ping
-	restful.Add(NewPushWS())   // /v1/push
-	restful.Add(NewBadgesWS()) // /v1/badges
+	restful.Add(NewPingWS()) // /ping
 
+	restful.Add(NewPushWS())     // /v1/push
+	restful.Add(NewBadgesWS())   // /v1/badges
 	restful.Add(NewStatsWS())    // /v1/stats
 	restful.Add(NewSendFormWS()) // /v1/send_form
 }
