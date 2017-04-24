@@ -18,6 +18,7 @@ const ServiceVersion = "1.0"
 type globalConfig struct {
 	Logger  LoggerConfig  `toml:"logger"`
 	Server  ServerConfig  `toml:"server"`
+	PID     PIDConfig     `toml:"pid"`
 	Redis   RedisConfig   `toml:"redis"`
 	Apns    ApnsConfig    `toml:"apns"`
 	Gcm     GcmConfig     `toml:"gcm"`
@@ -32,9 +33,14 @@ type LoggerConfig struct {
 }
 
 type ServerConfig struct {
-	BindAddress          string `toml:"bind_address"`
-	Port                 int    `toml:"port"`
+	ListenAddr           string `toml:"listen_addr"`
 	UnregisteredCallback string `toml:"unregistered_callback"`
+}
+
+type PIDConfig struct {
+	Enabled  bool   `toml:"enabled"`
+	Override bool   `toml:"override"`
+	File     string `toml:"file"`
 }
 
 type RedisConfig struct {
@@ -66,6 +72,7 @@ type WebPushConfig struct {
 
 var Logger LoggerConfig
 var Server ServerConfig
+var PID PIDConfig
 var Redis RedisConfig
 var Apns ApnsConfig
 var Gcm GcmConfig
@@ -80,10 +87,11 @@ func init() {
 func Load(cfgFile string) {
 	var conf globalConfig
 	if _, err := toml.DecodeFile(cfgFile, &conf); err != nil {
-		logger.Warnf("main: couldn't load config file '%s': %v", cfgFile, err)
+		logger.Warnf("config: couldn't load config file '%s': %v", cfgFile, err)
 	} else {
 		Logger = conf.Logger
 		Server = conf.Server
+		PID = conf.PID
 		Redis = conf.Redis
 		Apns = conf.Apns
 		Gcm = conf.Gcm
@@ -100,8 +108,7 @@ func initDefaultSettings() {
 	Logger.Logfile = "mercury.log"
 
 	// server
-	Server.BindAddress = ""
-	Server.Port = 8080
+	Server.ListenAddr = ":8080"
 
 	// storage
 	Redis.Host = "localhost:6379"

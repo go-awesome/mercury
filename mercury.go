@@ -13,6 +13,7 @@ import (
 	"github.com/ortuman/mercury/config"
 	"github.com/ortuman/mercury/server"
 	"os"
+	"log"
 )
 
 func main() {
@@ -36,7 +37,9 @@ func main() {
 		}
 
 		srv := server.NewServer()
-		srv.Run()
+		if err := srv.Run(); err != nil {
+			log.Fatalf("mercury: %v", err)
+		}
 	} else {
 		flag.Usage()
 	}
